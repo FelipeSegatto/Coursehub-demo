@@ -1,0 +1,208 @@
+## Known Issues
+
+### 1. Atividades vinculadas ao curso, sem definição de turma — RESOLVIDO (parcial, calendário pendente)
+
+**Status: implementado e validado em 2026-07-31** para os fluxos de listagem do aluno, detalhe do aluno, submissão, notas do aluno, listagem/detalhe de envios do professor, correção e contadores de turma. O calendário letivo permanece como limitação separada (ver abaixo).
+
+A tabela `activities` ganhou a coluna opcional `class_id`, seguindo exatamente a regra proposta originalmente:
+
+```text
+course_id preenchido e class_id nulo
+→ atividade comum a todas as turmas do curso
+
+class_id preenchido
+→ atividade exclusiva daquela turma
+```
+
+A regra de elegibilidade `activity.course_id = enrollment.course_id AND enrollment.status = 'active' AND (activity.class_id IS NULL OR activity.class_id = enrollment.class_id)` foi centralizada em `backend/services/activities/activityScopeService.js` e é usada por:
+
+* `backend/services/activities/studentActivityService.js` — listagem e detalhe do aluno (404 genérico quando fora de escopo, para não revelar que a atividade existe em outra turma) e envio de resposta (403 dedicado quando matriculado no curso mas na turma errada);
+* `backend/services/activities/teacherActivityService.js` — listagem/detalhe/criação/edição/exclusão do professor, incluindo validação de que `class_id` pertence ao curso e ao professor;
+* `backend/services/activities/activitySubmissionService.js` — listagem de envios (escopo obrigatório da turma quando a atividade é exclusiva; `classId` opcional só é aceito em atividades gerais, e é validado contra curso+professor) e detalhe de uma entrega (valida a matrícula do aluno dono da entrega contra o escopo da atividade);
+* `backend/services/activities/activityGradingService.js` — correção (valida elegibilidade da entrega antes de salvar nota) e notas do aluno (`getStudentGrades`, filtra por turma geral-ou-correspondente, sem exigir matrícula ativa para não esconder notas históricas);
+* rota `GET /api/teacher/by-user/:userId/classes/:classId/activities` e os contadores `activity_count` de turma (listagem e detalhe) — passaram a considerar `class_id IS NULL OR class_id = <turma>`.
+
+Validado manualmente via HTTP com JWTs assinados localmente (curso com duas turmas, atividade exclusiva de uma delas): listagem/detalhe/notas/contadores do aluno elegível e do aluno de turma errada, envio aceito/rejeitado conforme a turma, listagem de envios do professor filtrando pela turma da atividade, filtro opcional `classId` em atividade geral, e isolamento entre professores de cursos diferentes.
+
+**Limitação remanescente (calendário):** o calendário letivo ainda não aplica o mesmo filtro de `class_id` — uma atividade exclusiva de turma pode continuar aparecendo no calendário de alunos de outras turmas do mesmo curso. Este ponto foi deliberadamente deixado fora desta rodada e deve ser tratado como item futuro separado, reaproveitando `activityScopeService.js`.
+
+Caso uma mesma atividade precise futuramente ser reutilizada entre turmas com prazos diferentes (hoje o prazo é único por atividade), pode ser necessário separar o conteúdo da atividade de sua aplicação à turma, criando uma tabela intermediária como `class_activities` ou `activity_assignments`.
+
+---
+
+### 2. Pagamento manual registrado como originado pelo gateway
+
+Foi identificado um problema no fluxo financeiro em que um pagamento inserido manualmente foi registrado como se tivesse sido originado pelo gateway de pagamento.
+
+Isso prejudica a rastreabilidade financeira, pois o sistema passa a representar incorretamente:
+
+* a origem real do pagamento;
+* quem registrou ou confirmou a operação;
+* se houve comunicação com um gateway;
+* se existe uma transação externa correspondente;
+* qual fluxo pode alterar, estornar ou reconciliar o pagamento.
+
+Um pagamento manual não deve possuir origem `gateway` apenas porque utiliza a mesma rota ou serviço de persistência utilizado por pagamentos automáticos.
+
+**Comportamento esperado:**
+
+```text
+Pagamento criado por administrador
+→ source = admin ou manual
+→ actor_user_id preenchido
+→ gateway_transaction_id nulo
+
+Pagamento confirmado por webhook ou consulta ao provedor
+→ source = gateway
+→ gateway_transaction_id preenchido
+→ evento externo identificável
+```
+
+A correção deve separar explicitamente os fluxos de criação:
+
+```text
+registro manual
+confirmação pelo gateway
+importação ou conciliação
+```
+
+Também é necessário revisar a criação de registros em `payment_events` e `financial_events`, garantindo que o campo de origem seja definido pelo contexto real da operação, e não por um valor padrão compartilhado.
+
+**Risco atual:** relatórios, auditorias e conciliações podem considerar pagamentos manuais como transações processadas pelo gateway, produzindo dados financeiros incorretos e dificultando investigações futuras.
+
+
+
+Known Issue — Estrutura duplicada de middlewares - RESOLVIDO
+Duplicação da pasta middleware
+
+Status: Baixa prioridade (Technical Debt)
+
+Contexto
+
+Durante a reorganização do backend foi identificada a existência simultânea das pastas:
+
+backend/middleware/
+backend/middlewares/
+
+A implementação atual utiliza exclusivamente:
+
+backend/middlewares/
+
+conforme verificado nas importações ativas de server.js e dos routers.
+
+A pasta backend/middleware permaneceu apenas por resquícios de versões anteriores e por um arquivo de backup (serverbackup.txt), não sendo utilizada pela aplicação em execução.
+
+Risco
+
+A manutenção de duas estruturas equivalentes pode causar:
+
+imports inconsistentes em novas implementações;
+duplicação acidental de arquivos;
+dificuldade para localizar middlewares reais;
+alterações aplicadas na pasta incorreta.
+Solução planejada
+
+Antes da remoção definitiva:
+
+confirmar que nenhum arquivo .js ativo importa backend/middleware;
+comparar os arquivos das duas pastas para garantir que não exista nenhuma implementação divergente;
+atualizar ou remover serverbackup.txt;
+remover backend/middleware utilizando git rm -r;
+validar autenticação, autorização e refresh token após a limpeza.
+Critério de conclusão
+
+A estrutura do backend deverá possuir apenas:
+
+backend/
+└── middlewares/
+
+Todo o projeto deverá utilizar exclusivamente esta pasta para autenticação, autorização, rate limiting e demais middlewares.
+
+---
+
+### 3. Matrícula administrativa (Fase 2) — sem geração de faturas, mudança de curso e troca de role limitadas
+
+**Status: comportamento deliberado desta fase, documentado, não é um bug.**
+
+`POST /api/admin/enrollments` cria a matrícula e o contrato financeiro
+(`financial_contracts`) juntos, numa transação, copiando os dados do plano
+de preço selecionado. Nenhuma `invoice` é gerada automaticamente — nenhum
+lugar do backend (antes ou depois desta fase) gera faturas a partir de um
+contrato; construir isso exigiria um motor de parcelamento/vencimentos que
+não existe hoje. Um curso sem nenhum plano de preço ativo não pode receber
+novas matrículas por este endpoint até que um plano seja cadastrado
+diretamente no banco (não há tela de gestão de planos nesta fase).
+
+Mudança de curso de uma matrícula existente é bloqueada com 409 — trocar
+`course_id` tem consequências acadêmicas/financeiras maiores (contrato
+ligado ao plano do curso antigo, progresso ligado ao conteúdo do curso
+antigo) que não foram tratadas nesta fase. Fica como evolução futura.
+
+`PATCH /api/admin/users/:id/role` é bloqueado sempre que a conta já possui
+uma entidade acadêmica/profissional vinculada (`students`/`teachers`) —
+converter uma entidade em outra exigiria um fluxo de migração de dados que
+não existe (campos diferentes entre as tabelas, sem conversão automática).
+Na prática, hoje o endpoint só tem efeito em contas sem vínculo (admins).
+
+Não existe tabela de auditoria genérica no schema. A troca de turma de uma
+matrícula (`POST /api/admin/enrollments/:id/change-class`) registra
+motivo/ator/data diretamente em 3 colunas novas de `enrollments`
+(`class_change_reason`, `class_changed_at`, `class_changed_by_user_id`, ver
+`database/migrations/20260803_001_add_class_change_audit_to_enrollments.sql`),
+não num log reutilizável por outras entidades.
+
+---
+
+### 4. `course_contents` com tipos legados (`activity`/`assessment`) e dedup de `live_class` por convenção (Fase 3)
+
+**Status: dado legado preservado sem migração; regra de calendário é uma
+convenção de aplicação, não uma constraint de banco.**
+
+O enum `course_contents.type` ainda inclui os valores `'activity'` e
+`'assessment'`, herdados de antes da tabela `activities` existir. Hoje
+existem 19 linhas reais com esses tipos (10 `activity` + 9 `assessment`,
+todas de 2026-06-24) — texto solto e alguns links de Google Forms, sem
+`due_date`. Elas já são invisíveis para professor e aluno (`teacherCourseContentService.js`/`studentCourseContentService.js`
+filtram por `CONTENT_TYPES = ["video","pdf","text","live_class"]`), e
+`adminContentService.js` (Fase 3) reaproveita a mesma allowlist — nunca
+lista, cria ou edita essas 19 linhas. Nenhuma migração ou limpeza foi feita;
+os dados continuam no banco, só inacessíveis pela aplicação.
+
+A exclusão de `course_contents.type = 'live_class'` do calendário (para não
+duplicar com `class_sessions`, a fonte oficial de encontros) depende
+inteiramente de `due_date IS NULL` — não existe nenhuma constraint de banco
+impedindo que uma linha `live_class` receba um `due_date` no futuro. A partir
+da Fase 3, `adminContentService.createMaterial`/`updateMaterial` bloqueiam
+explicitamente `due_date` para `type = 'live_class'` (400), mas isso é uma
+regra de aplicação — um `UPDATE` direto no banco (fora da API) ainda
+poderia reintroduzir a duplicação. Ficou documentado aqui em vez de virar
+uma constraint `CHECK`, que não foi pedida nesta fase.
+
+---
+
+### 5. Professor não é lembrado de atividades/avaliações pendentes de correção
+
+**Status: gap identificado, ainda não corrigido.**
+
+`learning.submission.received` (`backend/services/notifications/eventDefinitions/learningSubmissionReceived.js`)
+notifica o professor responsável **uma única vez**, no momento em que o
+aluno envia a atividade/avaliação ("Está pendente de correção."). Se o
+professor não corrigir logo — ou simplesmente perder/ignorar essa
+notificação pontual — não existe nenhum lembrete de acompanhamento
+enquanto a entrega continuar pendente. Isso contrasta com o padrão já
+usado no módulo financeiro, que tem lembretes recorrentes para faturas
+vencidas (`financialInvoiceReminder`, `financialInvoiceOverdue`,
+`adminFinancialInvoiceOverdue15Days`/`30Days`) — o lado acadêmico não tem
+o equivalente para correções pendentes.
+
+**Risco atual:** entregas de alunos podem ficar esquecidas sem correção por
+tempo indefinido, sem que o professor (ou um admin) seja avisado de novo.
+Isso afeta diretamente o prazo de retorno ao aluno e a qualidade percebida
+do curso.
+
+**Solução planejada (não implementada):** um evento/worker recorrente
+(nos moldes do `notificationDeliveryWorker`/lembretes financeiros) que
+verifique submissões com `status IN ('submitted', 'pending_review')` acima
+de um limite de dias sem correção e dispare um lembrete ao professor
+responsável (e, opcionalmente, ao admin, se o atraso passar de um segundo
+limite maior).

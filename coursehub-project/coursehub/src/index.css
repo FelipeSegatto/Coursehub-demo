@@ -1,0 +1,223 @@
+@import "tailwindcss";
+
+/* ======================================================
+   LOCAL FONTS — PT SANS
+====================================================== */
+
+@font-face {
+  font-family: "PT Sans";
+  src: url("./assets/fonts/PTSans-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PT Sans";
+  src: url("./assets/fonts/PTSans-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PT Sans";
+  src: url("./assets/fonts/PTSans-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "PT Sans";
+  src: url("./assets/fonts/PTSans-BoldItalic.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ======================================================
+   LOCAL FONTS — POPPINS
+====================================================== */
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins/Poppins-Thin.ttf") format("truetype");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins/Poppins-ExtraLight.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins/Poppins-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins/Poppins-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins/Poppins-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins/Poppins-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins/Poppins-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins/Poppins-ExtraBold.ttf") format("truetype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins/Poppins-Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ======================================================
+   TAILWIND THEME
+====================================================== */
+
+@theme {
+  /* Fonte padrão do sistema */
+  --font-sans: "Poppins", sans-serif;
+
+  /* Fonte para títulos selecionados */
+  --font-pt: "PT Sans", sans-serif;
+
+  /* Fonte decorativa opcional carregada pelo Adobe Fonts */
+  --font-unit: "unit-rounded", sans-serif;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-unit);
+  }
+}
+
+/* ======================================================
+   GLOBAL STYLES
+====================================================== */
+
+body {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* ======================================================
+   ANIMATIONS
+====================================================== */
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0.65);
+  }
+
+  60% {
+    transform: scale(1.18);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-check-pop {
+  animation: checkPop 280ms ease-out;
+}
+
+@keyframes dangerLoadingSweep {
+  0% {
+    transform: translateX(-130%);
+  }
+
+  100% {
+    transform: translateX(230%);
+  }
+}
+
+.animate-danger-loading-sweep {
+  animation: dangerLoadingSweep 1.1s ease-in-out infinite;
+}
+
+/* ======================================================
+   IMPRESSÃO (window.print())
+   Usado pelo botão "Exportar PDF" dos dashboards administrativos
+   que ainda não têm filtro real na tela -- ver PrintPageButton.jsx.
+   .print-hide some do impresso (navbar, botões, navegação pura).
+   .print-avoid-break nunca corta um card/artigo no meio entre
+   páginas -- aplicado por classe (.rounded-2xl é o marcador de
+   "card" já usado consistentemente pelos dashboards) em vez de
+   marcar cada componente manualmente.
+====================================================== */
+
+@media print {
+  .print-hide {
+    display: none !important;
+  }
+
+  .print-area .rounded-2xl,
+  .print-area .rounded-xl,
+  .print-avoid-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  body {
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}

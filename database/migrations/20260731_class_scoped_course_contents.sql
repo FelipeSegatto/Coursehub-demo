@@ -1,0 +1,16 @@
+-- =========================================================
+-- Development seed: class-scoped course contents
+-- Date: 2026-07-31
+-- Depends on:
+-- 20260731_001_add_class_id_to_course_contents.sql
+--
+-- Purpose:
+-- Create test content associated with specific classes so the
+-- class visibility rules can be validated.
+--
+-- Environment:
+-- Development/local only.
+--
+-- Idempotency:
+-- Uses NOT EXISTS to avoid inserting duplicate test records.
+-- =========================================================
