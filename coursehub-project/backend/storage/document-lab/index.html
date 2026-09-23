@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <title>Laboratório de documentos — CourseHub</title>
+  <style>
+    :root { color-scheme: light; }
+    body { margin: 0; font-family: Inter, Segoe UI, sans-serif; background: #f4f6fb; color: #1a2233; }
+    header { background: #0a2a57; color: white; padding: 20px 28px; }
+    header .hub { color: #f46c3c; }
+    header p { margin: 6px 0 0; opacity: 0.85; font-size: 14px; }
+    .layout { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 88px); }
+    aside { padding: 16px; overflow: auto; border-right: 1px solid #d7dce5; background: white; }
+    .card { display: block; text-decoration: none; color: inherit; border: 1px solid #d7dce5; border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+    .card.ok { border-left: 4px solid #16a34a; }
+    .card.fail { border-left: 4px solid #dc2626; }
+    .card .group { display: block; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: #55627a; }
+    .card .meta { display: block; margin-top: 4px; font-size: 12px; color: #55627a; }
+    iframe { width: 100%; height: calc(100vh - 88px); border: 0; background: #e8edf5; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Course<span class="hub">Hub</span> · laboratório de documentos</h1>
+    <p>14/14 templates geraram PDF válido. Fixtures locais — não usa o banco da escola.</p>
+  </header>
+  <div class="layout">
+    <aside>
+      <a class="card ok" href="financial_contract.pdf" target="preview">
+        <span class="group">Oficiais</span>
+        <strong>Contrato financeiro</strong>
+        <span class="meta">55816 bytes</span>
+      </a>
+      <a class="card ok" href="invoice_copy.pdf" target="preview">
+        <span class="group">Oficiais</span>
+        <strong>2ª via de fatura</strong>
+        <span class="meta">50459 bytes</span>
+      </a>
+      <a class="card ok" href="payment_receipt.pdf" target="preview">
+        <span class="group">Oficiais</span>
+        <strong>Recibo de pagamento</strong>
+        <span class="meta">51884 bytes</span>
+      </a>
+      <a class="card ok" href="enrollment_declaration.pdf" target="preview">
+        <span class="group">Oficiais</span>
+        <strong>Declaração de matrícula</strong>
+        <span class="meta">56476 bytes</span>
+      </a>
+      <a class="card ok" href="attendance_declaration.pdf" target="preview">
+        <span class="group">Oficiais</span>
+        <strong>Declaração de frequência</strong>
+        <span class="meta">58827 bytes</span>
+      </a>
+      <a class="card ok" href="completion_declaration.pdf" target="preview">
+        <span class="group">Oficiais</span>
+        <strong>Declaração de conclusão</strong>
+        <span class="meta">69640 bytes</span>
+      </a>
+      <a class="card ok" href="certificate.pdf" target="preview">
+        <span class="group">Oficiais</span>
+        <strong>Certificado</strong>
+        <span class="meta">158900 bytes</span>
+      </a>
+      <a class="card ok" href="contract_terms.pdf" target="preview">
+        <span class="group">Termos</span>
+        <strong>Termos do contrato (HTML congelado)</strong>
+        <span class="meta">74676 bytes</span>
+      </a>
+      <a class="card ok" href="student_progress.pdf" target="preview">
+        <span class="group">Relatórios</span>
+        <strong>Progresso do aluno</strong>
+        <span class="meta">104775 bytes</span>
+      </a>
+      <a class="card ok" href="report_grades.pdf" target="preview">
+        <span class="group">Relatórios</span>
+        <strong>Relatório de notas</strong>
+        <span class="meta">59585 bytes</span>
+      </a>
+      <a class="card ok" href="report_attendance.pdf" target="preview">
+        <span class="group">Relatórios</span>
+        <strong>Relatório de frequência</strong>
+        <span class="meta">65434 bytes</span>
+      </a>
+      <a class="card ok" href="report_enrollments.pdf" target="preview">
+        <span class="group">Relatórios</span>
+        <strong>Relatório de matrículas</strong>
+        <span class="meta">60076 bytes</span>
+      </a>
+      <a class="card ok" href="report_academic_progress.pdf" target="preview">
+        <span class="group">Relatórios</span>
+        <strong>Relatório de progresso acadêmico</strong>
+        <span class="meta">61084 bytes</span>
+      </a>
+      <a class="card ok" href="report_invoices.pdf" target="preview">
+        <span class="group">Relatórios</span>
+        <strong>Relatório financeiro de faturas</strong>
+        <span class="meta">65095 bytes</span>
+      </a></aside>
+    <iframe name="preview" src="financial_contract.pdf" title="Pré-visualização"></iframe>
+  </div>
+</body>
+</html>

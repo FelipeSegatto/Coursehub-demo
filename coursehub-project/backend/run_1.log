@@ -1,0 +1,151 @@
+◇ injected env (29) from .env // tip: ⌘ enable debugging { debug: true }
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+Conectado ao MySQL!
+✔ changeInvoiceDueDate notifies the enrollment's student (181.4006ms)
+✔ changeInvoiceAmount notifies the enrollment's student (76.3403ms)
+✔ changing due date twice notifies twice (each is a genuine change) (117.9822ms)
+✔ cancelInvoice notifies the enrollment's student (108.2137ms)
+✔ registerManualPayment notifies the enrollment's student (payment approved) (84.609ms)
+✔ refundPayment notifies the enrollment's student (payment refunded) (139.8332ms)
+✔ creating a course-scope calendar event notifies exactly the active-enrolled students of that course (74.6451ms)
+✔ creating a class-scope calendar event only reaches that class (39.7617ms)
+✔ institutional-scope calendar event reaches active students and active teachers (219.0991ms)
+✔ updateEvent with a real date change fires calendar.event.changed (58.079ms)
+✔ updateEvent that only changes the title does not notify (cosmetic, not operational) (40.3024ms)
+✔ cancelEvent fires calendar.event.cancelled (73.9075ms)
+◇ injected env (29) from .env // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+Conectado ao MySQL!
+✔ changing the due date of an active activity fires learning.activity.changed once (237.1136ms)
+✔ re-saving the same due date does not fire learning.activity.changed (89.9499ms)
+✔ changing the class scope of an active activity fires learning.activity.changed (108.8996ms)
+✔ retrying the exact same due-date change dedupes to a single event (202.5914ms)
+✔ deactivating an active activity fires learning.activity.cancelled once (122.2434ms)
+✔ setting status to inactive via the general edit form also fires learning.activity.cancelled (124.4904ms)
+✔ deactivating a draft activity (never active) does not notify (21.3296ms)
+✔ deactivating an already-inactive activity still throws 409, unchanged behavior (94.3237ms)
+◇ injected env (29) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+Conectado ao MySQL!
+✔ creating an activity as draft does not notify (125.0066ms)
+✔ creating an activity as active notifies once, scoped to the class (44.8925ms)
+✔ draft -> active on update notifies exactly once (145.7149ms)
+✔ a course-wide activity (class_id null) reaches students from both classes (82.4774ms)
+✔ activity creation never calls the mailer synchronously -- delivery stays queued as pending (80.581ms)
+◇ injected env (29) from .env // tip: ⌘ override existing { override: true }
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+Conectado ao MySQL!
+✔ registering 'present' on first save does not notify (223.0832ms)
+✔ registering 'excused' on first save does not notify (61.3393ms)
+✔ registering 'absent' on first save notifies the student (66.8985ms)
+✔ registering 'late' on first save notifies the student (63.9101ms)
+✔ re-saving the identical status does not re-notify (111.4027ms)
+✔ correcting present -> absent notifies (moving into notify-worthy) (119.7095ms)
+✔ correcting absent -> present notifies again (relevant correction out of notify-worthy) (103.2117ms)
+✔ correcting present -> excused does not notify (neither side notify-worthy) (63.3427ms)
+✔ a batch only notifies the students whose status is relevant (59.2046ms)
+✔ admin adjustAttendance notifies when correcting into a notify-worthy status (60.7397ms)
+✔ admin adjustAttendance does not notify when the status stays the same (128.6042ms)
+✔ admin adjustAttendance does not notify moving between two non-notify-worthy statuses (63.0792ms)
+◇ injected env (29) from .env // tip: ⌘ suppress logs { quiet: true }
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+Conectado ao MySQL!
+✔ creating a content as draft does not notify (166.4802ms)
+✔ creating a content as active notifies once, scoped to the class (45.1559ms)
+✔ draft -> active on update notifies exactly once (70.0339ms)
+✔ changing the due date of an active content fires learning.content.changed once (54.1859ms)
+✔ re-saving the same due date does not fire learning.content.changed (44.8795ms)
+✔ archiving an active content fires learning.content.cancelled once (68.5998ms)
+✔ archiving a draft content (never active) does not notify (29.4287ms)
+✔ archiving an already-archived content still throws 409 (86.7833ms)
+◇ injected env (29) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+Conectado ao MySQL!
+✔ gradeSubmission notifies the student once on first grading (258.9802ms)
+✔ re-grading with the exact same score and feedback does not re-notify (121.2658ms)
+✔ re-grading with a different score notifies again (147.0334ms)
+✔ quickGradeSubmission notifies the student (193.2777ms)
+✔ admin adjustGrade notifies the student when the score actually changes (114.5337ms)
+✔ admin adjustGrade does not notify when the score stays the same (94.6728ms)
+◇ injected env (29) from .env // tip: ⌘ enable debugging { debug: true }
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+Conectado ao MySQL!
+✔ creating a session as scheduled notifies once, scoped to that class only (154.0027ms)
+✔ changing the date/time of a scheduled session fires learning.session.changed once (107.2609ms)
+✔ re-saving the same date/time does not fire learning.session.changed (76.9863ms)
+✔ setting status to cancelled via the general edit form fires learning.session.cancelled (252.1939ms)
+✔ cancelSession on a scheduled session fires learning.session.cancelled once (125.757ms)
+✔ cancelSession is idempotent: cancelling twice does not double-notify (102.8107ms)
+◇ injected env (29) from .env // tip: ⌘ enable debugging { debug: true }
+◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+Conectado ao MySQL!
+✔ a confirmed submission notifies the responsible teacher, not the student (209.9015ms)
+✔ submitting the same activity twice fails on the second attempt and does not double-notify (148.7231ms)
+◇ injected env (29) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+Conectado ao MySQL!
+✔ buildNotificationEmail escapes HTML but keeps text plain (113.2229ms)
+✔ claimBatch moves a due delivery from pending to processing (96.8358ms)
+✔ two concurrent claims never return the same delivery (FOR UPDATE SKIP LOCKED) (54.4112ms)
+✔ an expired processing lease becomes claimable again (72.9753ms)
+✔ markDeliverySent clears the lock and records the provider id (50.3155ms)
+✔ markDeliveryFailed schedules a retry until the 5th failure, which terminates (46.4313ms)
+[mailer] Conta de teste (Ethereal) — preview do e-mail: https://ethereal.email/message/anS7y4e.DCat8BzDanS7zwu8O4A4J38QAAAAAY13yQLDfCcqsT2KLQqmxcs
+✔ password reset email still works after mailer generalization (5187.3606ms)
+◇ injected env (29) from .env // tip: ⌘ override existing { override: true }
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+Conectado ao MySQL!
+✔ listInbox never returns another user's notifications (188.2679ms)
+✔ listInbox response never exposes email, metadata, or delivery internals (14.5733ms)
+✔ markAsRead on another user's notification returns 404, does not mutate it (22.2536ms)
+✔ archiveNotification on another user's notification returns 404 (16.4077ms)
+✔ getUnreadCount reflects at least the notifications this test just created (39.3449ms)
+✔ markAsRead is idempotent and marks exactly the target recipient row read (28.455ms)
+✔ markAllAsRead only affects the caller's own unread notifications (59.6179ms)
+✔ listInbox cursor pagination returns no duplicates and no gaps across pages (82.4824ms)
+✔ archived items are excluded from the default inbox but not from includeArchived=true (41.8042ms)
+✔ updatePreference rejects invalid category and non-boolean emailEnabled (1.4985ms)
+✔ listPreferences reflects the stored override, not just the registry default (8.297ms)
+◇ injected env (29) from .env // tip: ⌘ enable debugging { debug: true }
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+Conectado ao MySQL!
+✔ registry rejects a type definition missing required fields (68.9951ms)
+✔ createNotificationEvent creates notification + recipient + email delivery (28.6518ms)
+✔ createNotificationEvent is idempotent on the same deduplication key (26.041ms)
+✔ createNotificationEvent excludes the actor from recipients by default (1.9149ms)
+✔ createNotificationEvent rolls back the notification row when a recipient insert violates a constraint (11.8449ms)
+✔ notifications.deduplication_key UNIQUE constraint rejects a raw duplicate insert (15.5241ms)
+✔ notification_preferences UNIQUE(user_id, category) rejects a raw duplicate insert (11.4943ms)
+✔ email policy: essential ignores an explicit opt-out (30.7163ms)
+◇ injected env (29) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+Conectado ao MySQL!
+✔ generateMissingCollectionActions creates all 6 rows with correct offsets (205.5205ms)
+✔ generateMissingCollectionActions is idempotent (32.3811ms)
+✔ a cancelled invoice never gets collection actions generated (174.5611ms)
+✔ processing due actions only touches what's actually due today, not future ones (148.2602ms)
+✔ marked_overdue transitions the invoice and notifies once (164.3617ms)
+✔ overdue_charge_10_days only warns -- never changes the invoice amount (50.5305ms)
+✔ lock_warning_15_days only warns -- the enrollment stays active (56.1964ms)
+✔ enrollment_locked_30_days with the kill switch off (default) skips without locking or notifying (74.091ms)
+✔ enrollment_locked_30_days with the kill switch on actually locks and notifies (98.7534ms)
+✔ closing an invoice invalidates its still-pending collection actions (32.7349ms)
+✔ processCollectionAction skips (does not act) when the invoice already left the open states (23.788ms)
+✔ test\testHelpers.js (231.6747ms)
+✔ datesRepresentSameInstant: a bare date string equals itself, not shifted by UTC parsing (5.7353ms)
+✔ datesRepresentSameInstant: a genuinely different date is detected as changed (0.5815ms)
+✔ datesRepresentSameInstant: full datetime strings compare correctly (0.4205ms)
+✔ datesRepresentSameInstant: null on both sides is unchanged (0.3294ms)
+✔ datesRepresentSameInstant: null vs a real date is a change in either direction (0.4275ms)
+✔ withTransaction commits and returns the business function's result on success (5.3308ms)
+✔ withTransaction retries once on ER_LOCK_DEADLOCK and succeeds on the second attempt (1.18ms)
+✔ withTransaction gives up after maxAttempts deadlocks and rethrows (2.005ms)
+✔ withTransaction does not retry a non-deadlock error (1.5457ms)
+ℹ tests 106
+ℹ suites 0
+ℹ pass 106
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6961.5441

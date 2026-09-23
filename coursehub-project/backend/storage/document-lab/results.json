@@ -1,0 +1,100 @@
+[
+  {
+    "id": "financial_contract",
+    "group": "Oficiais",
+    "title": "Contrato financeiro",
+    "ok": true,
+    "pdfBytes": 55816
+  },
+  {
+    "id": "invoice_copy",
+    "group": "Oficiais",
+    "title": "2ª via de fatura",
+    "ok": true,
+    "pdfBytes": 50459
+  },
+  {
+    "id": "payment_receipt",
+    "group": "Oficiais",
+    "title": "Recibo de pagamento",
+    "ok": true,
+    "pdfBytes": 51884
+  },
+  {
+    "id": "enrollment_declaration",
+    "group": "Oficiais",
+    "title": "Declaração de matrícula",
+    "ok": true,
+    "pdfBytes": 56476
+  },
+  {
+    "id": "attendance_declaration",
+    "group": "Oficiais",
+    "title": "Declaração de frequência",
+    "ok": true,
+    "pdfBytes": 58827
+  },
+  {
+    "id": "completion_declaration",
+    "group": "Oficiais",
+    "title": "Declaração de conclusão",
+    "ok": true,
+    "pdfBytes": 69640
+  },
+  {
+    "id": "certificate",
+    "group": "Oficiais",
+    "title": "Certificado",
+    "ok": true,
+    "pdfBytes": 158900
+  },
+  {
+    "id": "contract_terms",
+    "group": "Termos",
+    "title": "Termos do contrato (HTML congelado)",
+    "ok": true,
+    "pdfBytes": 74676
+  },
+  {
+    "id": "student_progress",
+    "group": "Relatórios",
+    "title": "Progresso do aluno",
+    "ok": true,
+    "pdfBytes": 104775
+  },
+  {
+    "id": "report_grades",
+    "group": "Relatórios",
+    "title": "Relatório de notas",
+    "ok": true,
+    "pdfBytes": 59585
+  },
+  {
+    "id": "report_attendance",
+    "group": "Relatórios",
+    "title": "Relatório de frequência",
+    "ok": true,
+    "pdfBytes": 65434
+  },
+  {
+    "id": "report_enrollments",
+    "group": "Relatórios",
+    "title": "Relatório de matrículas",
+    "ok": true,
+    "pdfBytes": 60076
+  },
+  {
+    "id": "report_academic_progress",
+    "group": "Relatórios",
+    "title": "Relatório de progresso acadêmico",
+    "ok": true,
+    "pdfBytes": 61084
+  },
+  {
+    "id": "report_invoices",
+    "group": "Relatórios",
+    "title": "Relatório financeiro de faturas",
+    "ok": true,
+    "pdfBytes": 65095
+  }
+]
