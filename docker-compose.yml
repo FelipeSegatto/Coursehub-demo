@@ -1,0 +1,180 @@
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?defina MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: coursehub_escola
+      MYSQL_USER: coursehub_app
+      MYSQL_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./deploy/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    restart: unless-stopped
+
+  api:
+    image: coursehub-backend
+    build:
+      context: ./coursehub-project/backend
+      dockerfile: Dockerfile
+
+    environment: &backend_env
+      PORT: 3001
+      NODE_ENV: production
+
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: coursehub_app
+      DB_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD}
+      DB_NAME: coursehub_escola
+
+      JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET}
+      ACCESS_TOKEN_EXPIRES_IN: 15m
+      REFRESH_TOKEN_EXPIRES_IN: 7d
+
+      CORS_ORIGIN: ${PUBLIC_ORIGIN:?defina PUBLIC_ORIGIN}
+      FRONTEND_URL: ${PUBLIC_ORIGIN:?defina PUBLIC_ORIGIN}
+
+      PAYMENT_GATEWAY: ${PAYMENT_GATEWAY:-simulated}
+
+      SIMULATED_PAYMENT_AUTO_APPROVE: "true"
+      SIMULATED_PAYMENT_AUTO_APPROVE_MS: "5000"
+
+      DEMO_MODE: "true"
+      DEMO_ALLOW_SIMULATED_GATEWAY: "true"
+
+      DEMO_RESET_ON_LOGOUT: "true"
+      DEMO_SNAPSHOT_DB: coursehub_escola_jornada
+
+      NOTIFICATION_WORKER_ENABLED: "false"
+      SCHEDULED_REMINDERS_WORKER_ENABLED: "false"
+
+      ENABLE_ENROLLMENT_AUTO_LOCK: "false"
+
+      SMTP_FROM: "CourseHub <no-reply@coursehub.local>"
+
+    volumes:
+      - uploads:/app/storage/uploads
+      - generated_documents:/app/storage/generated-documents
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/api/public/institution').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+    expose:
+      - "3001"
+
+    restart: unless-stopped
+
+  worker-notifications:
+    image: coursehub-backend
+
+    command:
+      [
+        "node",
+        "workers/notificationEmailWorker.js"
+      ]
+
+    environment:
+      <<: *backend_env
+      NOTIFICATION_WORKER_ENABLED: "true"
+      SCHEDULED_REMINDERS_WORKER_ENABLED: "false"
+
+    volumes:
+      - uploads:/app/storage/uploads
+
+    depends_on:
+      api:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+  worker-reminders:
+    image: coursehub-backend
+
+    command:
+      [
+        "node",
+        "workers/scheduledRemindersWorker.js"
+      ]
+
+    environment:
+      <<: *backend_env
+      NOTIFICATION_WORKER_ENABLED: "false"
+      SCHEDULED_REMINDERS_WORKER_ENABLED: "true"
+
+    depends_on:
+      api:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+  worker-documents:
+    image: coursehub-backend
+
+    command:
+      [
+        "node",
+        "workers/documentGenerationWorker.js"
+      ]
+
+    environment:
+      <<: *backend_env
+      NOTIFICATION_WORKER_ENABLED: "false"
+      SCHEDULED_REMINDERS_WORKER_ENABLED: "false"
+
+    shm_size: 1gb
+
+    volumes:
+      - generated_documents:/app/storage/generated-documents
+      - uploads:/app/storage/uploads
+
+    depends_on:
+      api:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./coursehub-project/coursehub
+      dockerfile: Dockerfile
+
+      args:
+        VITE_API_URL: ${PUBLIC_API_URL:?defina PUBLIC_API_URL}
+
+    depends_on:
+      api:
+        condition: service_healthy
+
+    expose:
+      - "80"
+
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  uploads:
+  generated_documents:
