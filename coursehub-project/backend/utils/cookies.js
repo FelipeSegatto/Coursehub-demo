@@ -25,11 +25,35 @@ function durationToMs(value, fallbackMs) {
   return Number(amount) * DURATION_UNITS[unit];
 }
 
+function cookieUsesSecureFlag() {
+  const explicit = String(process.env.COOKIE_SECURE || "").toLowerCase();
+
+  if (explicit === "true" || explicit === "1") {
+    return true;
+  }
+
+  if (explicit === "false" || explicit === "0") {
+    return false;
+  }
+
+  const origin = process.env.FRONTEND_URL || process.env.CORS_ORIGIN || "";
+
+  if (origin.startsWith("https://")) {
+    return true;
+  }
+
+  if (origin.startsWith("http://")) {
+    return false;
+  }
+
+  return process.env.NODE_ENV === "production";
+}
+
 function baseCookieOptions() {
   return {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: cookieUsesSecureFlag(),
   };
 }
 

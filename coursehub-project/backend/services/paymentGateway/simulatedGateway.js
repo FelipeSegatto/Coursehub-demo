@@ -1,12 +1,13 @@
 const crypto = require("crypto");
 const QRCode = require("qrcode");
+const { allowsSimulatedPayments } = require("./demoGatewayPolicy");
 
 const {
   formatDateTimeForMySQL,
 } = require("./paymentGatewayContract");
 
 function shouldAutoApproveSimulatedPayment() {
-  if (process.env.NODE_ENV === "production") {
+  if (!allowsSimulatedPayments()) {
     return false;
   }
 

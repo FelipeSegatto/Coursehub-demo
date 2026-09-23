@@ -3,6 +3,7 @@ const db = require("../db");
 const authenticateToken = require("../middlewares/authenticateToken");
 
 const { getPaymentGatewayName, resolveGatewayByName } = require("../services/paymentGateway/paymentGatewayFactory");
+const { allowsSimulatedPayments } = require("../services/paymentGateway/demoGatewayPolicy");
 const { processGatewayPaymentUpdate } = require("../services/financial/paymentProcessingService");
 
 const router = express.Router();
@@ -101,7 +102,7 @@ router.post("/webhooks/payments/mercado-pago", async (req, res) => {
  * dev").
  */
 router.post("/webhooks/payments/simulated/:paymentId/approve", authenticateToken, async (req, res) => {
-  if (process.env.NODE_ENV === "production" || getPaymentGatewayName() !== "simulated") {
+  if (!allowsSimulatedPayments()) {
     return res.status(404).json({ message: "Não encontrado." });
   }
 

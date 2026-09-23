@@ -7,13 +7,15 @@
 require("dotenv").config();
 
 const { purgeExpiredAuthTokens } = require("./repositories/authTokens");
+const { allowsSimulatedPayments } = require("./services/paymentGateway/demoGatewayPolicy");
 
 if (
   process.env.NODE_ENV === "production" &&
-  process.env.PAYMENT_GATEWAY === "simulated"
+  (process.env.PAYMENT_GATEWAY || "simulated") === "simulated" &&
+  !allowsSimulatedPayments()
 ) {
   throw new Error(
-    "O gateway de pagamento simulado não pode ser utilizado em produção."
+    "O gateway de pagamento simulado não pode ser utilizado em produção. Defina DEMO_ALLOW_SIMULATED_GATEWAY=true apenas na demonstração."
   );
 }
 

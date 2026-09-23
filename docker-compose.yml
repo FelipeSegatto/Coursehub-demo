@@ -27,6 +27,7 @@ services:
 
 
   api:
+    image: coursehub-backend
     build:
       context: ./coursehub-project/backend
       dockerfile: Dockerfile
@@ -94,9 +95,7 @@ services:
 
 
   worker-notifications:
-    build:
-      context: ./coursehub-project/backend
-      dockerfile: Dockerfile
+    image: coursehub-backend
 
     command:
       [
@@ -121,9 +120,7 @@ services:
 
 
   worker-reminders:
-    build:
-      context: ./coursehub-project/backend
-      dockerfile: Dockerfile
+    image: coursehub-backend
 
     command:
       [
@@ -148,9 +145,7 @@ services:
 
 
   worker-documents:
-    build:
-      context: ./coursehub-project/backend
-      dockerfile: Dockerfile
+    image: coursehub-backend
 
     command:
       [
@@ -182,14 +177,14 @@ services:
       dockerfile: Dockerfile
 
       args:
-        VITE_API_URL: ${PUBLIC_API_URL:?defina PUBLIC_API_URL}
+        VITE_API_URL: ${PUBLIC_ORIGIN:?defina PUBLIC_ORIGIN}
 
     depends_on:
       api:
         condition: service_healthy
 
-    expose:
-      - "80"
+    ports:
+      - "${WEB_PORT:-80}:80"
 
     restart: unless-stopped
 

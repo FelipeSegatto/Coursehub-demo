@@ -14,6 +14,7 @@ const {
  */
 const express = require("express");
 const db = require("../db");
+const { allowsSimulatedPayments } = require("../services/paymentGateway/demoGatewayPolicy");
 const requireInvoicePaymentSession = require("../middlewares/requireInvoicePaymentSession");
 const {
   invoicePaymentLinkAccessRateLimiter,
@@ -179,13 +180,7 @@ router.get(
        * Portanto, durante o polling em desenvolvimento,
        * sincronizamos explicitamente o estado do gateway.
        */
-      if (
-        process.env.NODE_ENV !==
-          "production" &&
-        process.env.PAYMENT_GATEWAY ===
-          "simulated" &&
-        payment.status === "pending"
-      ) {
+      if (allowsSimulatedPayments() && payment.status === "pending") {
         try {
           const [
             rows,

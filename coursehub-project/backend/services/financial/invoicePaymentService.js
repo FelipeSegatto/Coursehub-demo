@@ -7,6 +7,7 @@ const { applyApproval } = require("./paymentProcessingService");
 const { dispatchActivationNotifications } = require("./activateContractService");
 const { notifyAdminPaymentRejected } = require("./financialNotificationService");
 const { getPaymentGateway, getPaymentGatewayName } = require("../paymentGateway/paymentGatewayFactory");
+const { allowsSimulatedPayments } = require("../paymentGateway/demoGatewayPolicy");
 const { buildExternalReference, buildIdempotencyKey } = require("../paymentGateway/paymentGatewayContract");
 
 /**
@@ -297,7 +298,7 @@ function toPaymentDto(payment) {
     cardInstallments: payment.card_installments || null,
     paidAt: payment.paid_at || null,
     simulationAvailable:
-      process.env.NODE_ENV !== "production" && payment.gateway === "simulated",
+      allowsSimulatedPayments() && payment.gateway === "simulated",
   };
 }
 

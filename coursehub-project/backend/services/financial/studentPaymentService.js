@@ -16,6 +16,8 @@ const {
   createServiceError,
 } = require("../classes/classAccessService");
 
+const { allowsSimulatedPayments } = require("../paymentGateway/demoGatewayPolicy");
+
 const {
   startInvoicePayment,
   getInvoicePaymentByAccessContext,
@@ -142,11 +144,7 @@ async function getInvoicePaymentByUser(
    * Se já chegou em estado terminal, não existe
    * nada para sincronizar.
    */
-  if (
-    process.env.NODE_ENV === "production" ||
-    process.env.PAYMENT_GATEWAY !== "simulated" ||
-    payment.status !== "pending"
-  ) {
+  if (!allowsSimulatedPayments() || payment.status !== "pending") {
     return payment;
   }
 
@@ -308,7 +306,7 @@ async function getInvoicePaymentByUser(
  * Disponível somente fora de produção com PAYMENT_GATEWAY=simulated.
  */
 async function simulateInvoicePaymentApproval(db, { userId, paymentId }) {
-  if (process.env.NODE_ENV === "production" || process.env.PAYMENT_GATEWAY !== "simulated") {
+  if (!allowsSimulatedPayments()) {
     throw createServiceError("A simulação de pagamento não está disponível neste ambiente.", 404);
   }
 
