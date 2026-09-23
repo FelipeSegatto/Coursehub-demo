@@ -1,14 +1,17 @@
 services:
   mysql:
     image: mysql:8.0
+
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?defina MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: coursehub_escola
       MYSQL_USER: coursehub_app
       MYSQL_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD}
+
     volumes:
       - mysql_data:/var/lib/mysql
       - ./deploy/mysql/init:/docker-entrypoint-initdb.d:ro
+
     healthcheck:
       test:
         [
@@ -19,10 +22,11 @@ services:
       timeout: 5s
       retries: 30
       start_period: 20s
+
     restart: unless-stopped
 
+
   api:
-    image: coursehub-backend
     build:
       context: ./coursehub-project/backend
       dockerfile: Dockerfile
@@ -88,8 +92,11 @@ services:
 
     restart: unless-stopped
 
+
   worker-notifications:
-    image: coursehub-backend
+    build:
+      context: ./coursehub-project/backend
+      dockerfile: Dockerfile
 
     command:
       [
@@ -104,6 +111,7 @@ services:
 
     volumes:
       - uploads:/app/storage/uploads
+      - generated_documents:/app/storage/generated-documents
 
     depends_on:
       api:
@@ -111,8 +119,11 @@ services:
 
     restart: unless-stopped
 
+
   worker-reminders:
-    image: coursehub-backend
+    build:
+      context: ./coursehub-project/backend
+      dockerfile: Dockerfile
 
     command:
       [
@@ -125,14 +136,21 @@ services:
       NOTIFICATION_WORKER_ENABLED: "false"
       SCHEDULED_REMINDERS_WORKER_ENABLED: "true"
 
+    volumes:
+      - uploads:/app/storage/uploads
+      - generated_documents:/app/storage/generated-documents
+
     depends_on:
       api:
         condition: service_healthy
 
     restart: unless-stopped
 
+
   worker-documents:
-    image: coursehub-backend
+    build:
+      context: ./coursehub-project/backend
+      dockerfile: Dockerfile
 
     command:
       [
@@ -148,14 +166,15 @@ services:
     shm_size: 1gb
 
     volumes:
-      - generated_documents:/app/storage/generated-documents
       - uploads:/app/storage/uploads
+      - generated_documents:/app/storage/generated-documents
 
     depends_on:
       api:
         condition: service_healthy
 
     restart: unless-stopped
+
 
   web:
     build:
@@ -173,6 +192,7 @@ services:
       - "80"
 
     restart: unless-stopped
+
 
 volumes:
   mysql_data:
