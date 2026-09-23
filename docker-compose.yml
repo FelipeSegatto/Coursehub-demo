@@ -16,12 +16,12 @@ services:
       test:
         [
           "CMD-SHELL",
-          "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"
+          "mysqladmin --protocol=socket -uroot -p\"$$MYSQL_ROOT_PASSWORD\" ping --silent"
         ]
-      interval: 5s
+      interval: 10s
       timeout: 5s
-      retries: 30
-      start_period: 20s
+      retries: 20
+      start_period: 40s
 
     restart: unless-stopped
 
