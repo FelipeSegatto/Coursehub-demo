@@ -96,6 +96,9 @@ services:
 
   worker-notifications:
     image: coursehub-backend
+    build:
+      context: ./coursehub-project/backend
+      dockerfile: Dockerfile
 
     command:
       [
@@ -121,6 +124,9 @@ services:
 
   worker-reminders:
     image: coursehub-backend
+    build:
+      context: ./coursehub-project/backend
+      dockerfile: Dockerfile
 
     command:
       [
@@ -146,6 +152,9 @@ services:
 
   worker-documents:
     image: coursehub-backend
+    build:
+      context: ./coursehub-project/backend
+      dockerfile: Dockerfile
 
     command:
       [
