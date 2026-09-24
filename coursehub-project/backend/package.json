@@ -12,6 +12,7 @@
     "demo:snapshot": "node scripts/demo/snapshotEscolaDemo.js",
     "demo:galdino-attendance": "node scripts/demo/seedGaldinoAttendance.js",
     "demo:seed-student-journey": "node scripts/demo/seedStudentJourneyNotifications.js",
+    "demo:seed-teacher-panel": "node scripts/demo/seedTeacherPanel.js",
     "demo:reset-permissions": "node scripts/demo/prepareDemoResetPermissions.js"
   },
   "dependencies": {
