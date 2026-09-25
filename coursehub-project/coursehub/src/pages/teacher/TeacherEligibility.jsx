@@ -4,6 +4,13 @@ import { useAuth } from "../../auth/AuthContext";
 import { apiFetch } from "../../services/APIService";
 import { getTeacherCompletionEligibility } from "../../services/AcademicDocumentsService";
 
+function readList(payload, key) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.[key])) return payload[key];
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+}
+
 export default function TeacherEligibility() {
   const { usuarioLogado } = useAuth();
 
@@ -19,7 +26,7 @@ export default function TeacherEligibility() {
     if (!usuarioLogado?.id) return;
 
     apiFetch(`/api/teacher/by-user/${usuarioLogado.id}/classes`)
-      .then((data) => setClasses(Array.isArray(data) ? data : data?.data || []))
+      .then((data) => setClasses(readList(data, "classes")))
       .catch(() => setClasses([]));
   }, [usuarioLogado?.id]);
 
@@ -30,7 +37,7 @@ export default function TeacherEligibility() {
     }
 
     apiFetch(`/api/teacher/by-user/${usuarioLogado.id}/classes/${selectedClassId}/students`)
-      .then((data) => setStudents(Array.isArray(data) ? data : data?.data || []))
+      .then((data) => setStudents(readList(data, "students")))
       .catch(() => setStudents([]));
 
     setSelectedStudentId("");
@@ -89,11 +96,15 @@ export default function TeacherEligibility() {
             className="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 disabled:bg-gray-100"
           >
             <option value="">Selecione um aluno</option>
-            {students.map((student) => (
-              <option key={student.studentId || student.student_id || student.id} value={student.studentId || student.student_id}>
-                {student.name}
-              </option>
-            ))}
+            {students.map((student) => {
+              const studentId = student.studentId || student.student_id || student.id;
+
+              return (
+                <option key={studentId} value={studentId}>
+                  {student.name}
+                </option>
+              );
+            })}
           </select>
         </label>
 

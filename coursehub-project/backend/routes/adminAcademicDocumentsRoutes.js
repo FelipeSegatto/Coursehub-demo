@@ -94,6 +94,7 @@ mountDocumentAccessRoutes(router, {
   requestDocument: issueCertificate,
   getDocumentStatus: getCertificateStatus,
   getDocumentFile: getCertificateFile,
+  buildParams: (req) => ({ completedAt: req.body?.completedAt || req.query?.completedAt }),
 });
 
 /**
@@ -157,6 +158,7 @@ router.post(
       const result = await reissueCertificate(db, {
         certificateId: req.params.certificateId,
         actorUserId: req.auth.userId,
+        completedAt: req.body?.completedAt,
       });
 
       return res.status(202).json({ data: result });

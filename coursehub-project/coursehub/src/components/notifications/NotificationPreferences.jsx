@@ -1,31 +1,24 @@
 import { useEffect, useState } from "react";
 import { listNotificationPreferences, updateNotificationPreference } from "../../services/NotificationService";
+import { getNotificationCategoryLabel } from "../../constants/notificationCategories";
 
-const CATEGORY_LABELS = {
-  learning: {
-    label: "Acadêmico",
-    description: "Atividades, avaliações, conteúdos, encontros, notas e frequência.",
-  },
-  financial: {
-    label: "Financeiro",
-    description: "Faturas, pagamentos e lembretes de vencimento.",
-  },
-  calendar: {
-    label: "Calendário institucional",
-    description: "Eventos institucionais publicados, alterados ou cancelados.",
-  },
-  chat: {
-    label: "Chat",
-    description: "Novas mensagens em suas conversas.",
-  },
+const CATEGORY_DESCRIPTIONS = {
+  learning: "Atividades, avaliações, conteúdos, encontros, notas e frequência.",
+  financial: "Faturas, pagamentos e lembretes de vencimento.",
+  calendar: "Eventos institucionais publicados, alterados ou cancelados.",
+  chat: "Novas mensagens em suas conversas.",
+  enrollment: "Novas matrículas e checkouts concluídos.",
+  registration: "Novos cadastros de usuários.",
+  request: "Solicitações administrativas e respostas.",
+  contact: "Mensagens enviadas pelo fale conosco.",
 };
 
 function labelFor(category) {
-  return CATEGORY_LABELS[category]?.label || category;
+  return getNotificationCategoryLabel(category);
 }
 
 function descriptionFor(category) {
-  return CATEGORY_LABELS[category]?.description || "";
+  return CATEGORY_DESCRIPTIONS[category] || "Avisos desta categoria por e-mail.";
 }
 
 export default function NotificationPreferences() {

@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 function StatCard({ title, value, color = "blue", to }) {
   const colors = {
     blue: "text-blue-600",
+    ink: "text-slate-950",
     green: "text-green-600",
     red: "text-red-600",
     yellow: "text-yellow-600",

@@ -358,7 +358,7 @@ const REACT_CURRICULUM = [
     key: "r4",
     kind: "activity",
     type: "quiz",
-    title: "Quiz rápido: o que o useState devolve",
+    title: "Atividade Final: o que o useState devolve",
     description: "Atividade curta de múltipla escolha da semana. Dá para fazer em poucos minutos.",
     dueDate: "2026-09-24 23:59:00",
     orderIndex: 4,

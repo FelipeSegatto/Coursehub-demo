@@ -7,6 +7,7 @@
 require("dotenv").config();
 
 const { purgeExpiredAuthTokens } = require("./repositories/authTokens");
+const { resumeDemoResetSchedule } = require("./services/demo/demoResetService");
 const { allowsSimulatedPayments } = require("./services/paymentGateway/demoGatewayPolicy");
 
 if (
@@ -219,4 +220,13 @@ app.listen(PORT, () => {
   purgeExpiredAuthTokens().catch((error) => {
     console.error("Falha ao purgar tokens expirados no boot:", error.message);
   });
+
+  resumeDemoResetSchedule();
+
+  try {
+    const { startEmbeddedWorker } = require("./workers/documentGenerationWorker");
+    startEmbeddedWorker();
+  } catch (error) {
+    console.error("Falha ao iniciar o gerador de documentos:", error.message);
+  }
 });

@@ -47,8 +47,16 @@ const {
 
 
 const {
-  restoreDemoSnapshot,
+  scheduleDemoResetAfterLogin,
 } = require("../services/demo/demoResetService");
+
+const {
+  shiftRoteiroDueDatesToToday,
+} = require("../services/demo/demoDueDates");
+
+const {
+  applyDemoBaseline,
+} = require("../scripts/demo/seedCompletionRules");
 
 
 const router =
@@ -96,6 +104,16 @@ router.post(
         refreshToken
       );
 
+      scheduleDemoResetAfterLogin();
+
+      applyDemoBaseline()
+        .catch((baselineError) => {
+          console.error("Falha ao reaplicar as regras de conclusão no login:", baselineError.message);
+        })
+        .then(() => shiftRoteiroDueDatesToToday())
+        .catch((shiftError) => {
+          console.error("Falha ao alinhar o vencimento do roteiro ao dia corrente:", shiftError.message);
+        });
 
       return res
         .status(200)
@@ -148,8 +166,6 @@ router.post(
     res
   ) => {
 
-    let demoReset = null;
-
     try {
 
       const refreshToken =
@@ -174,23 +190,6 @@ router.post(
     }
 
 
-    try {
-      // Na demonstração pública, sair da conta significa devolver
-      // TODO o banco ao estado-base: PIX/mensalidades, notificações,
-      // atividades, presença, chats e demais mudanças da jornada.
-      demoReset = await restoreDemoSnapshot();
-    } catch (error) {
-      console.error("Erro ao restaurar snapshot da demo no logout:", error);
-
-      clearAuthCookies(res);
-
-      return res.status(500).json({
-        message: "A sessão foi encerrada, mas não foi possível restaurar a demonstração.",
-        demoReset: false,
-      });
-    }
-
-
     clearAuthCookies(
       res
     );
@@ -201,7 +200,6 @@ router.post(
       .json({
         message:
           "Logout realizado com sucesso.",
-        demoReset: Boolean(demoReset?.reset),
       });
   }
 );

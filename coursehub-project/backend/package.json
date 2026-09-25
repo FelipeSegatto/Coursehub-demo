@@ -13,6 +13,9 @@
     "demo:galdino-attendance": "node scripts/demo/seedGaldinoAttendance.js",
     "demo:seed-student-journey": "node scripts/demo/seedStudentJourneyNotifications.js",
     "demo:seed-teacher-panel": "node scripts/demo/seedTeacherPanel.js",
+    "demo:seed-teacher-courses": "node scripts/demo/seedTeacherCourses.js",
+    "demo:seed-node-attendance": "node scripts/demo/seedNodeAttendance.js",
+    "demo:seed-completion-rules": "node scripts/demo/seedCompletionRules.js",
     "demo:reset-permissions": "node scripts/demo/prepareDemoResetPermissions.js"
   },
   "dependencies": {

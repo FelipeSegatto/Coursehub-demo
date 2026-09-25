@@ -47,14 +47,26 @@ let browserPromise = null;
 
 async function getBrowser() {
   if (!browserPromise) {
-    browserPromise = puppeteer.launch({
+    const launching = puppeteer.launch({
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu"],
+      // A primeira abertura no Windows passa de 30s. Sem isso o
+      // certificado morre com "waiting for the WS endpoint URL".
+      timeout: 120000,
+      pipe: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--disable-dev-shm-usage"],
     });
 
-    browserPromise.catch(() => {
-      browserPromise = null;
-    });
+    browserPromise = launching;
+
+    launching
+      .then((browser) => {
+        browser.on("disconnected", () => {
+          if (browserPromise === launching) browserPromise = null;
+        });
+      })
+      .catch(() => {
+        if (browserPromise === launching) browserPromise = null;
+      });
   }
 
   return browserPromise;

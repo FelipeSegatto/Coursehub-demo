@@ -6,6 +6,7 @@ export const DEMO_ACCOUNTS = [
     role: "Aluna em dia",
     name: "Marina Alves",
     email: "marina.alves@email.com",
+    moment: "Quiz da semana",
     summary:
       "É a aluna adimplente: um curso (Node, Turma B), contrato pago, progresso no ar. Já entregou 3 atividades e 1 prova. Na home ainda tem o quiz da semana — dá para ver aula, envio, documentos e o chat da turma.",
   },
@@ -14,32 +15,27 @@ export const DEMO_ACCOUNTS = [
     role: "Aluno com atraso",
     name: "Pedro Nogueira",
     email: "pedro.nogueira@email.com",
+    moment: "Pagar com Pix",
     summary:
-      "É o aluno com vida acadêmica e financeira juntas: Node e React, uma falta, mensalidade 2/4 vencida. No Financeiro o card vermelho é o Pix — QR, aprovação em segundos e a escola recebe o aviso.",
+      "É o aluno com vida acadêmica e financeira juntas: Node e React, uma falta, mensalidade 2/4 vencida. No React ainda faltam a atividade final e a avaliação final. No Financeiro o card vermelho é o Pix — QR, aprovação em segundos e a escola recebe o aviso.",
   },
   {
     id: "teacher",
     role: "Professor da turma",
-    name: "Marcelo Torres",
-    email: "marcelo.torres@email.com",
-    summary:
-      "É o dia a dia docente no Node: titular da Turma A, fila de correção da 4ª atividade (colegas já enviaram; Marina e Pedro ainda não) e a chamada da turma.",
-  },
-  {
-    id: "teacher-multi",
-    role: "Professor de dois cursos",
     name: "Junior Galdino",
     email: "junior.galdino@email.com",
+    moment: "Duas turmas",
     summary:
-      "É o professor da Marina e do Pedro: Node Turma B e React Turma B, além das Turmas C dos dois cursos. Na home o gráfico de presença traz as turmas; em Materiais o seletor troca o curso; o chat da aluna cai aqui.",
+      "É o professor da Marina e do Pedro: Node Turma B e React Turma B, além das Turmas C dos dois cursos. Na home a fila da 4ª atividade e o gráfico de presença; em Materiais o seletor troca o curso; o chat da aluna cai aqui. Depois que o Pedro entregar a atividade final e a avaliação final de React, a correção dessas duas peças o deixa elegível ao certificado.",
   },
   {
     id: "admin",
     role: "Secretaria da escola",
     name: "Larissa Almeida",
     email: "admin2@coursehub.com",
+    moment: "Pagamento recebido",
     summary:
-      "É a operação: contrato pago da Marina, emitir matrícula e frequência, acompanhar a escola. Depois do Pix do Pedro, a notificação de pagamento recebido aparece aqui.",
+      "É a operação: contrato pago da Marina, emitir matrícula e frequência, acompanhar a escola. Depois do Pix do Pedro, a notificação de pagamento recebido aparece aqui. Quando o Junior tiver corrigido a atividade final e a avaliação final de React, ela emite o certificado de conclusão do Pedro.",
   },
 ];
 
@@ -57,22 +53,17 @@ export const DEMO_STEPS = [
   {
     title: "Pedro",
     detail:
-      "Área do aluno com pendência financeira: chat, React e o quiz. No Financeiro, pague a fatura atrasada com Pix — o QR aparece e a aprovação chega em alguns segundos.",
-  },
-  {
-    title: "Marcelo",
-    detail:
-      "Área do professor de Node: fila da 4ª atividade na home e chamada da Turma A.",
+      "Área do aluno com pendência financeira: chat, React, a atividade final e a avaliação final. No Financeiro, pague a fatura atrasada com Pix — o QR aparece e a aprovação chega em alguns segundos.",
   },
   {
     title: "Junior",
     detail:
-      "Professor da Marina e do Pedro: Turmas B de Node e React, mais as Turmas C. Home com o gráfico, Materiais (troque o curso), chamada e o chat da aluna.",
+      "Área do professor da Marina e do Pedro: fila da 4ª atividade, gráfico de presença, Materiais (troque o curso), chamada e o chat da aluna. Quando o Pedro tiver enviado a atividade final e a avaliação final de React, corrija os dois: a partir daí ele fica elegível ao certificado de conclusão.",
   },
   {
     title: "Larissa",
     detail:
-      "Área da secretaria: contrato da Marina, emitir matrícula e frequência. Depois do Pix, abra as notificações — pagamento recebido.",
+      "Área da secretaria: contrato da Marina, emitir matrícula e frequência. Depois do Pix, abra as notificações — pagamento recebido. Com a atividade final e a avaliação final de React do Pedro já corrigidas pelo Junior, emita o certificado de conclusão dele.",
   },
 ];
 

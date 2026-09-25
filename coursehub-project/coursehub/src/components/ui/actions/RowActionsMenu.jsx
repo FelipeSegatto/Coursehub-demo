@@ -5,7 +5,8 @@ import { MoreHorizontal } from "lucide-react";
 const ITEM_VARIANT_CLASSES = {
   neutral: "text-gray-700 data-[highlighted]:bg-gray-50",
   warning: "text-amber-700 data-[highlighted]:bg-amber-50",
-  danger: "text-red-600 data-[highlighted]:bg-red-50",
+  danger:
+    "border border-rose-200 bg-rose-50 text-rose-700 data-[highlighted]:border-rose-300 data-[highlighted]:bg-rose-100",
 };
 
 /**
@@ -82,8 +83,8 @@ function DestructiveMenuItem({
         ${isBusy ? "cursor-wait" : "data-[disabled]:opacity-50"}
         ${
           isArmed
-            ? "text-white ring-1 ring-red-400"
-            : "border border-transparent text-red-700 data-[highlighted]:border-red-200 data-[highlighted]:bg-red-50"
+            ? "text-white ring-1 ring-rose-300"
+            : "border border-rose-200 bg-rose-50 text-rose-800 data-[highlighted]:border-rose-300 data-[highlighted]:bg-rose-100"
         }
       `}
       onPointerDown={startHolding}

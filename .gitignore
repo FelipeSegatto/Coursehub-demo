@@ -1,5 +1,6 @@
 node_modules
 dist
+coursehub-project/backend/storage/demo-reset-at.json
 
 .env
 .env.*

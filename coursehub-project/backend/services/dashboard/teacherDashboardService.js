@@ -1,7 +1,5 @@
 const {
   getTeacherIdByUserId,
-  teacherClassAccessSql,
-  teacherClassAccessParams,
   createServiceError,
 } = require("../classes/classAccessService");
 
@@ -56,8 +54,8 @@ function buildActivityDeepLink(activityKind, activityId) {
 async function countActiveClasses(db, teacherId) {
   const [rows] = await db.promise().query(
     `SELECT COUNT(*) AS count FROM classes cl
-     WHERE cl.status = 'active' AND ${teacherClassAccessSql("cl")}`,
-    teacherClassAccessParams(teacherId)
+     WHERE cl.status = 'active' AND cl.teacher_id = ?`,
+    [teacherId]
   );
 
   return Number(rows[0]?.count || 0);
@@ -155,13 +153,13 @@ async function listUpcomingSessions(db, teacherId) {
         cl.id AS class_id, cl.name AS class_name
       FROM class_sessions cs
       INNER JOIN classes cl ON cl.id = cs.class_id
-      WHERE ${teacherClassAccessSql("cl")}
+      WHERE cl.teacher_id = ?
         AND cs.status = 'scheduled'
         AND cs.session_date BETWEEN ? AND ?
       ORDER BY cs.session_date ASC, cs.start_time ASC
       LIMIT ${UPCOMING_SESSIONS_LIMIT}
     `,
-    [...teacherClassAccessParams(teacherId), today, windowEnd]
+    [teacherId, today, windowEnd]
   );
 
   return rows.map((row) => ({
@@ -208,10 +206,11 @@ async function listClassesOverview(db, teacherId) {
         INNER JOIN attendance att ON att.class_session_id = cs2.id
         GROUP BY cs2.class_id
       ) attendance_stats ON attendance_stats.class_id = cl.id
-      WHERE ${teacherClassAccessSql("cl")} AND cl.status = 'active'
+      WHERE cl.status = 'active'
+        AND cl.teacher_id = ?
       ORDER BY c.name ASC, cl.name ASC
     `,
-    teacherClassAccessParams(teacherId)
+    [teacherId]
   );
 
   return rows.map((row) => {

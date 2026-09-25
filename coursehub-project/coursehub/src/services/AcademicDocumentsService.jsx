@@ -34,8 +34,18 @@ export function getAdminCompletionDeclarationEndpoints(enrollmentId) {
   return buildEndpoints(`/api/admin/academic-documents/enrollments/${enrollmentId}/declarations/completion`);
 }
 
-export function getAdminCertificateEndpoints(enrollmentId) {
-  return buildEndpoints(`/api/admin/academic-documents/enrollments/${enrollmentId}/certificate`);
+export function getAdminCertificateEndpoints(enrollmentId, completedAt) {
+  const basePath = `/api/admin/academic-documents/enrollments/${enrollmentId}/certificate`;
+
+  return {
+    request: () =>
+      apiFetch(basePath, {
+        method: "POST",
+        body: JSON.stringify({ completedAt }),
+      }),
+    status: () => apiFetch(basePath),
+    downloadUrl: `${API_URL}${basePath}/download`,
+  };
 }
 
 // Aluno -- só leitura (status/download; POST não existe do lado do backend)
@@ -117,9 +127,10 @@ export async function revokeCertificate(certificateId, reason) {
   });
 }
 
-export async function reissueCertificate(certificateId) {
+export async function reissueCertificate(certificateId, completedAt) {
   return apiFetch(`/api/admin/academic-documents/certificates/${certificateId}/reissue`, {
     method: "POST",
+    body: JSON.stringify({ completedAt }),
   });
 }
 

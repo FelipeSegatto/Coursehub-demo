@@ -1,9 +1,13 @@
-# Reset automático da demo ao sair
+# Reset automático da demo
 
-Com `DEMO_RESET_ON_LOGOUT=true`, `POST /api/auth/logout` restaura o banco ativo
-(`DB_NAME`) a partir de `DEMO_SNAPSHOT_DB` antes de concluir o logout.
+Com `DEMO_RESET_ON_LOGOUT=true`, o banco ativo (`DB_NAME`) volta ao snapshot
+(`DEMO_SNAPSHOT_DB`) uma hora depois do último token de login.
 
-Isso devolve ao estado inicial, entre outros:
+Cada login bem-sucedido empurra esse prazo para uma hora à frente. Se duas
+pessoas entram ao mesmo tempo, vale o token mais recente. Sair da conta não
+restaura o banco.
+
+A cópia devolve ao estado inicial, entre outros:
 
 - faturas/mensalidades e pagamentos PIX;
 - notificações e estado lida/não lida;
@@ -12,8 +16,9 @@ Isso devolve ao estado inicial, entre outros:
 - conversas e mensagens;
 - alterações administrativas feitas durante a demonstração.
 
-A cópia é feita dentro de uma transação e com exclusão mútua: dois logouts ao
-mesmo tempo não executam duas restaurações concorrentes.
+A cópia é feita dentro de uma transação. Um reset já em andamento não dispara
+outro em paralelo. Se o processo da API reiniciar antes da hora, o prazo
+pendente é retomado.
 
 ## Configuração
 
@@ -42,7 +47,7 @@ DEMO_RESET_DB_PASSWORD=senha
 ## Snapshot inicial
 
 O snapshot deve representar exatamente a jornada que você quer que reapareça
-após cada logout. Para atualizá-lo deliberadamente:
+após cada reset. Para atualizá-lo deliberadamente:
 
 ```powershell
 $env:MYSQL_ROOT_PASSWORD="SUA_SENHA_ROOT"

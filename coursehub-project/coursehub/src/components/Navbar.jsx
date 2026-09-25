@@ -57,7 +57,7 @@ export default function Navbar() {
         <div className="flex items-center justify-end gap-2 font-pt text-semibold sm:gap-3">
           <Link
             to="/courses"
-            className="hidden rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 md:inline-flex"
+            className="hidden rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 lg:inline-flex"
           >
             Ver cursos
           </Link>

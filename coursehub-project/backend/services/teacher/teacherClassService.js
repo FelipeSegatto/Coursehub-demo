@@ -1,8 +1,6 @@
 const {
   getTeacherIdByUserId,
   getClassOwnedByTeacher,
-  teacherClassAccessSql,
-  teacherClassAccessParams,
   createServiceError,
 } = require("../classes/classAccessService");
 
@@ -56,7 +54,7 @@ async function listClasses(db, { userId, status }) {
     throw createServiceError("Professor não encontrado.", 404);
   }
 
-  const queryParams = [...teacherClassAccessParams(teacherId)];
+  const queryParams = [teacherId];
   let statusCondition = "";
 
   if (normalizedStatus) {
@@ -94,7 +92,7 @@ async function listClasses(db, { userId, status }) {
         WHERE e.status = 'active'
         GROUP BY e.class_id
       ) enrollment_stats ON enrollment_stats.class_id = cl.id
-      WHERE ${teacherClassAccessSql("cl")}
+      WHERE cl.teacher_id = ?
         ${statusCondition}
       ORDER BY
         CASE

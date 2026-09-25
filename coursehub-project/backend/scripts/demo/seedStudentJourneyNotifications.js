@@ -1,5 +1,5 @@
 /**
- * Notificações que ilustram a jornada da Marina e do Pedro.
+ * Notificações da jornada da Marina, do Pedro, do Junior e da Larissa.
  *
  * Idempotente: a chave demo.student.journey:... não duplica linha.
  * O e-mail fica skipped para o worker não disparar a caixa de saída.
@@ -19,8 +19,15 @@ const { formatDateOnly } = require("../../utils/appConfig");
 const MARINA_EMAIL = "marina.alves@email.com";
 const PEDRO_EMAIL = "pedro.nogueira@email.com";
 const ACTOR_EMAIL = "junior.galdino@email.com";
+const LARISSA_EMAIL = "admin2@coursehub.com";
+const NODE_FIRST_QUIZ = "Quiz: npm, scripts e o package.json";
+const NODE_MIDDLEWARE = "Exercício: rotas e middleware no Express";
+const REACT_FIRST_QUIZ = "Quiz: JSX e o primeiro componente";
+const CHAT_TITLE = "Dúvida sobre middleware";
+const PEDRO_CHAT_TITLE = "Dúvida sobre a avaliação de React";
+const PEDRO_CHAT_BODY = "Professor, já enviei a avaliação parcial de Fundamentos de React. O useState devolve o valor novo na mesma renderização ou só na próxima?";
 const NODE_QUIZ_TITLE = "Quiz rápido: req, res e a primeira rota";
-const REACT_QUIZ_TITLE = "Quiz rápido: o que o useState devolve";
+const REACT_QUIZ_TITLE = "Atividade Final: o que o useState devolve";
 const NODE_EXAM_TITLE = "Avaliação parcial — Express na prática";
 const REACT_EXAM_TITLE = "Avaliação parcial — Fundamentos de React";
 const JOURNEY_AS_OF = "2026-09-22";
@@ -236,64 +243,6 @@ function buildEvents({ marina, pedro, actorUserId, marinaNode, pedroNode, pedroR
     });
   }
 
-  if (marinaContent) {
-    events.push({
-      userId: marina.user_id,
-      email: marina.email,
-      createdAt: "2026-09-14 10:00:00",
-      type: "learning.content.published",
-      category: "learning",
-      priority: "normal",
-      title: `Novo conteúdo: ${marinaContent.title}`,
-      message: `Um novo ${contentLabel(marinaContent.type)} foi publicado no curso ${marinaContent.course_name}: "${marinaContent.title}".`,
-      sourceType: "course_content",
-      sourceId: marinaContent.id,
-      actorUserId,
-      courseId: marinaContent.course_id,
-      classId: marinaNode.class_id,
-      actionPath: `/aluno/dashboard-aluno/courses/${marinaContent.course_id}`,
-    });
-  }
-
-  if (pedroContent) {
-    events.push({
-      userId: pedro.user_id,
-      email: pedro.email,
-      createdAt: "2026-09-14 10:05:00",
-      type: "learning.content.published",
-      category: "learning",
-      priority: "normal",
-      title: `Novo conteúdo: ${pedroContent.title}`,
-      message: `Um novo ${contentLabel(pedroContent.type)} foi publicado no curso ${pedroContent.course_name}: "${pedroContent.title}".`,
-      sourceType: "course_content",
-      sourceId: pedroContent.id,
-      actorUserId,
-      courseId: pedroContent.course_id,
-      classId: pedroContent.course_id === pedroReact.course_id ? pedroReact.class_id : pedroNode.class_id,
-      actionPath: `/aluno/dashboard-aluno/courses/${pedroContent.course_id}`,
-    });
-  }
-
-  if (nodeSession) {
-    const timeLabel = nodeSession.start_time ? ` às ${String(nodeSession.start_time).slice(0, 5)}` : "";
-    events.push({
-      userId: marina.user_id,
-      email: marina.email,
-      createdAt: "2026-09-16 18:30:00",
-      type: "learning.session.scheduled",
-      category: "learning",
-      priority: "normal",
-      title: `Novo encontro: ${nodeSession.title}`,
-      message: `Um novo encontro foi agendado para a turma ${nodeSession.class_name} do curso ${nodeSession.course_name}: "${nodeSession.title}", em ${formatDateOnly(nodeSession.session_date)}${timeLabel}.`,
-      sourceType: "class_session",
-      sourceId: nodeSession.id,
-      actorUserId,
-      courseId: nodeSession.course_id,
-      classId: nodeSession.class_id,
-      actionPath: "/aluno/calendario",
-    });
-  }
-
   events.push({
     userId: marina.user_id,
     email: marina.email,
@@ -347,66 +296,10 @@ function buildEvents({ marina, pedro, actorUserId, marinaNode, pedroNode, pedroR
     });
   }
 
-  const quizMessage = (activity) => {
-    const due = activity.due_date ? ` Prazo: ${formatDateOnly(activity.due_date)}.` : "";
-    return `Uma nova atividade foi publicada no curso ${activity.course_name}: "${activity.title}".${due}`;
-  };
-
-  events.push({
-    userId: marina.user_id,
-    email: marina.email,
-    createdAt: "2026-09-21 09:00:00",
-    type: "learning.activity.published",
-    category: "learning",
-    priority: "normal",
-    title: `Nova atividade: ${nodeQuiz.title}`,
-    message: quizMessage(nodeQuiz),
-    sourceType: "activity",
-    sourceId: nodeQuiz.id,
-    actorUserId,
-    courseId: nodeQuiz.course_id,
-    classId: marinaNode.class_id,
-    actionPath: activityPath(nodeQuiz),
-  });
-
   events.push({
     userId: pedro.user_id,
     email: pedro.email,
-    createdAt: "2026-09-21 09:00:00",
-    type: "learning.activity.published",
-    category: "learning",
-    priority: "normal",
-    title: `Nova atividade: ${nodeQuiz.title}`,
-    message: quizMessage(nodeQuiz),
-    sourceType: "activity",
-    sourceId: nodeQuiz.id,
-    actorUserId,
-    courseId: nodeQuiz.course_id,
-    classId: pedroNode.class_id,
-    actionPath: activityPath(nodeQuiz),
-  });
-
-  events.push({
-    userId: pedro.user_id,
-    email: pedro.email,
-    createdAt: "2026-09-21 09:10:00",
-    type: "learning.activity.published",
-    category: "learning",
-    priority: "normal",
-    title: `Nova atividade: ${reactQuiz.title}`,
-    message: quizMessage(reactQuiz),
-    sourceType: "activity",
-    sourceId: reactQuiz.id,
-    actorUserId,
-    courseId: reactQuiz.course_id,
-    classId: pedroReact.class_id,
-    actionPath: activityPath(reactQuiz),
-  });
-
-  events.push({
-    userId: pedro.user_id,
-    email: pedro.email,
-    createdAt: "2026-09-21 09:20:00",
+    createdAt: "2026-09-10 08:05:00",
     type: "financial.invoice.overdue",
     category: "financial",
     priority: "high",
@@ -421,6 +314,343 @@ function buildEvents({ marina, pedro, actorUserId, marinaNode, pedroNode, pedroR
   });
 
   return events.sort((left, right) => left.createdAt.localeCompare(right.createdAt) || left.email.localeCompare(right.email));
+}
+
+async function loadUser(conn, email) {
+  return requireRow(
+    await one(conn, `SELECT id AS user_id, email, name FROM users WHERE email = ? LIMIT 1`, [email]),
+    email
+  );
+}
+
+async function loadSubmission(conn, { studentId, title }) {
+  return one(
+    conn,
+    `SELECT s.id, a.title, a.activity_kind, a.course_id, c.name AS course_name
+     FROM submissions s
+     INNER JOIN activities a ON a.id = s.activity_id
+     INNER JOIN courses c ON c.id = a.course_id
+     WHERE s.student_id = ? AND a.title = ?
+     ORDER BY s.id DESC
+     LIMIT 1`,
+    [studentId, title]
+  );
+}
+
+async function loadChatFromStudent(conn, { title, senderEmail }) {
+  return one(
+    conn,
+    `SELECT m.id, m.body, cc.course_id, cc.class_id
+     FROM chat_messages m
+     INNER JOIN chat_conversations cc ON cc.id = m.conversation_id
+     INNER JOIN users u ON u.id = m.sender_user_id
+     WHERE cc.title = ? AND u.email = ? AND m.deleted_at IS NULL
+     ORDER BY m.id DESC
+     LIMIT 1`,
+    [title, senderEmail]
+  );
+}
+
+async function loadPaymentDetail(conn, { studentId, courseId }) {
+  return one(
+    conn,
+    `SELECT p.id, p.amount, p.payment_method, i.description, e.course_id, e.class_id,
+            c.name AS course_name, fc.id AS contract_id, u.name AS student_name
+     FROM payments p
+     INNER JOIN invoices i ON i.id = p.invoice_id
+     INNER JOIN financial_contracts fc ON fc.id = i.financial_contract_id
+     INNER JOIN enrollments e ON e.id = fc.enrollment_id
+     INNER JOIN courses c ON c.id = e.course_id
+     INNER JOIN students s ON s.id = e.student_id
+     INNER JOIN users u ON u.id = s.user_id
+     WHERE e.student_id = ? AND e.course_id = ? AND p.status = 'approved'
+     ORDER BY p.paid_at, p.id
+     LIMIT 1`,
+    [studentId, courseId]
+  );
+}
+
+function gradeEvent({ user, createdAt, grade, classId, actorUserId }) {
+  return {
+    userId: user.user_id,
+    email: user.email,
+    createdAt,
+    type: "learning.grade.published",
+    category: "learning",
+    priority: "normal",
+    title: `Nota publicada: ${grade.title}`,
+    message: `Sua nota da ${grade.activity_kind === "exam" ? "avaliação" : "atividade"} "${grade.title}" (${grade.course_name}) foi publicada: ${formatScore(grade.score)}/${formatScore(grade.max_score)}.`,
+    sourceType: "grade",
+    sourceId: grade.id,
+    actorUserId,
+    courseId: grade.course_id,
+    classId,
+    actionPath: "/aluno/notas",
+  };
+}
+
+function submissionEvent({ teacher, createdAt, submission, studentName, classId }) {
+  const kindLabel = submission.activity_kind === "exam" ? "avaliação" : "atividade";
+  const kindTitle = submission.activity_kind === "exam" ? "Avaliação" : "Atividade";
+
+  return {
+    userId: teacher.user_id,
+    email: teacher.email,
+    createdAt,
+    type: "learning.submission.received",
+    category: "learning",
+    priority: "normal",
+    title: `${kindTitle} recebida: ${submission.title}`,
+    message: `${studentName} enviou a ${kindLabel} "${submission.title}" do curso ${submission.course_name}. Está pendente de correção.`,
+    sourceType: "submission",
+    sourceId: submission.id,
+    actorUserId: null,
+    courseId: submission.course_id,
+    classId,
+    actionPath: `/professor/envios/${submission.id}/corrigir`,
+  };
+}
+
+function paymentReceivedEvent({ admin, createdAt, payment }) {
+  const method = payment.payment_method ? ` via ${payment.payment_method}` : "";
+
+  return {
+    userId: admin.user_id,
+    email: admin.email,
+    createdAt,
+    type: "admin.financial.payment.received",
+    category: "financial",
+    priority: "normal",
+    title: "Pagamento recebido",
+    message: `${payment.student_name} pagou R$ ${formatMoney(payment.amount)}${method} (${payment.course_name}).`,
+    sourceType: "payment",
+    sourceId: payment.id,
+    actorUserId: null,
+    courseId: payment.course_id,
+    classId: payment.class_id,
+    actionPath: `/admin/financeiro/contratos/${payment.contract_id}`,
+  };
+}
+
+function welcomeEvent({ user, createdAt, enrollment, feminine }) {
+  const hello = feminine ? "Bem-vinda" : "Bem-vindo";
+
+  return {
+    userId: user.user_id,
+    email: user.email,
+    createdAt,
+    type: "academic.enrollment.welcome",
+    category: "learning",
+    priority: "normal",
+    title: `${hello} ao curso ${enrollment.course_name}`,
+    message: `${hello} à turma ${enrollment.class_name}. O semestre começa em agosto: atividades, avaliações e vencimentos passam a aparecer por aqui.`,
+    sourceType: "course",
+    sourceId: enrollment.course_id,
+    actorUserId: null,
+    courseId: enrollment.course_id,
+    classId: enrollment.class_id,
+    actionPath: `/aluno/dashboard-aluno/courses/${enrollment.course_id}`,
+  };
+}
+
+function publishedEvent({ user, createdAt, activity, classId, actorUserId }) {
+  const exam = activity.activity_kind === "exam";
+  const due = activity.due_date ? ` Prazo: ${formatDateOnly(activity.due_date)}.` : "";
+
+  return {
+    userId: user.user_id,
+    email: user.email,
+    createdAt,
+    type: "learning.activity.published",
+    category: "learning",
+    priority: "normal",
+    title: `${exam ? "Nova avaliação" : "Nova atividade"}: ${activity.title}`,
+    message: `Uma nova ${exam ? "avaliação" : "atividade"} foi publicada no curso ${activity.course_name}: "${activity.title}".${due}`,
+    sourceType: "activity",
+    sourceId: activity.id,
+    actorUserId,
+    courseId: activity.course_id,
+    classId,
+    actionPath: activityPath(activity),
+  };
+}
+
+function buildContinuedStory(context) {
+  const {
+    marina, pedro, junior, larissa, actorUserId,
+    marinaNode, pedroNode, pedroReact, overdue,
+    marinaFirstGrade, pedroFirstGrade, pedroReactGrade, pedroReactExamGrade,
+    marinaMiddlewareSubmission, marinaExamSubmission, pedroReactExamSubmission,
+    chatMessage, pedroChatMessage, marinaPaymentDetail, pedroNodePayment, pedroReactPayment,
+    nodeFirstQuiz, nodeMiddlewareActivity, nodeExam, reactFirstQuiz, reactExam,
+  } = context;
+  const events = [];
+
+  events.push(welcomeEvent({ user: marina, createdAt: "2026-08-03 09:00:00", enrollment: marinaNode, feminine: true }));
+  events.push(welcomeEvent({ user: pedro, createdAt: "2026-08-03 09:05:00", enrollment: pedroNode, feminine: false }));
+  events.push(welcomeEvent({ user: pedro, createdAt: "2026-08-03 09:06:00", enrollment: pedroReact, feminine: false }));
+  events.push({
+    userId: junior.user_id,
+    email: junior.email,
+    createdAt: "2026-08-03 09:10:00",
+    type: "academic.enrollment.welcome",
+    category: "learning",
+    priority: "normal",
+    title: "Suas turmas de agosto estão abertas",
+    message: `Node (${marinaNode.class_name}) e React (${pedroReact.class_name}) começam o semestre. Envios, notas e mensagens da turma aparecem por aqui.`,
+    sourceType: "class",
+    sourceId: marinaNode.class_id,
+    actorUserId: null,
+    courseId: marinaNode.course_id,
+    classId: marinaNode.class_id,
+    actionPath: "/professor/dashboard-professor",
+  });
+  events.push({
+    userId: larissa.user_id,
+    email: larissa.email,
+    createdAt: "2026-08-03 09:15:00",
+    type: "academic.enrollment.welcome",
+    category: "learning",
+    priority: "normal",
+    title: "Semestre de agosto iniciado",
+    message: "Marina Alves e Pedro Nogueira estão matriculados. Pagamentos já recebidos e vencimentos do semestre aparecem nesta caixa.",
+    sourceType: "course",
+    sourceId: marinaNode.course_id,
+    actorUserId: null,
+    courseId: marinaNode.course_id,
+    classId: marinaNode.class_id,
+    actionPath: "/admin/dashboard-admin",
+  });
+
+  if (nodeFirstQuiz) {
+    events.push(publishedEvent({ user: marina, createdAt: "2026-08-10 09:00:00", activity: nodeFirstQuiz, classId: marinaNode.class_id, actorUserId }));
+    events.push(publishedEvent({ user: pedro, createdAt: "2026-08-10 09:00:00", activity: nodeFirstQuiz, classId: pedroNode.class_id, actorUserId }));
+  }
+  if (reactFirstQuiz) {
+    events.push(publishedEvent({ user: pedro, createdAt: "2026-08-12 09:00:00", activity: reactFirstQuiz, classId: pedroReact.class_id, actorUserId }));
+  }
+  if (nodeMiddlewareActivity) {
+    events.push(publishedEvent({ user: marina, createdAt: "2026-08-26 09:00:00", activity: nodeMiddlewareActivity, classId: marinaNode.class_id, actorUserId }));
+    events.push(publishedEvent({ user: pedro, createdAt: "2026-08-26 09:00:00", activity: nodeMiddlewareActivity, classId: pedroNode.class_id, actorUserId }));
+  }
+  if (nodeExam) {
+    events.push(publishedEvent({ user: marina, createdAt: "2026-09-08 09:00:00", activity: nodeExam, classId: marinaNode.class_id, actorUserId }));
+    events.push(publishedEvent({ user: pedro, createdAt: "2026-09-08 09:00:00", activity: nodeExam, classId: pedroNode.class_id, actorUserId }));
+  }
+  if (reactExam) {
+    events.push(publishedEvent({ user: pedro, createdAt: "2026-09-09 09:00:00", activity: reactExam, classId: pedroReact.class_id, actorUserId }));
+  }
+
+  if (marinaPaymentDetail) events.push(paymentReceivedEvent({ admin: larissa, createdAt: "2026-08-18 14:25:00", payment: marinaPaymentDetail }));
+  if (pedroNodePayment) events.push(paymentReceivedEvent({ admin: larissa, createdAt: "2026-08-18 14:26:00", payment: pedroNodePayment }));
+  if (pedroReactPayment) events.push(paymentReceivedEvent({ admin: larissa, createdAt: "2026-08-18 14:27:00", payment: pedroReactPayment }));
+  if (marinaFirstGrade) events.push(gradeEvent({ user: marina, createdAt: "2026-08-25 16:00:00", grade: marinaFirstGrade, classId: marinaNode.class_id, actorUserId }));
+  if (pedroFirstGrade) events.push(gradeEvent({ user: pedro, createdAt: "2026-08-25 16:05:00", grade: pedroFirstGrade, classId: pedroNode.class_id, actorUserId }));
+  if (marinaMiddlewareSubmission) {
+    events.push(submissionEvent({
+      teacher: junior,
+      createdAt: "2026-09-03 19:40:00",
+      submission: marinaMiddlewareSubmission,
+      studentName: marina.name,
+      classId: marinaNode.class_id,
+    }));
+  }
+  if (pedroReactGrade) events.push(gradeEvent({ user: pedro, createdAt: "2026-09-04 11:00:00", grade: pedroReactGrade, classId: pedroReact.class_id, actorUserId }));
+
+  events.push({
+    userId: pedro.user_id,
+    email: pedro.email,
+    createdAt: "2026-09-07 09:00:00",
+    type: "financial.invoice.reminder",
+    category: "financial",
+    priority: "normal",
+    title: "Fatura vence em breve",
+    message: `A fatura "${overdue.description}" (${overdue.course_name}) vence em ${formatDateOnly(overdue.due_date)}.`,
+    sourceType: "invoice",
+    sourceId: overdue.id,
+    actorUserId: null,
+    courseId: overdue.course_id,
+    classId: overdue.class_id,
+    actionPath: "/aluno/financeiro",
+  });
+  events.push({
+    userId: larissa.user_id,
+    email: larissa.email,
+    createdAt: "2026-09-10 08:15:00",
+    type: "admin.financial.invoice.overdue",
+    category: "financial",
+    priority: "normal",
+    title: "Fatura em atraso",
+    message: `${pedro.name} possui uma cobrança vencida de R$ ${formatMoney(overdue.amount)}.`,
+    sourceType: "invoice",
+    sourceId: overdue.id,
+    actorUserId: null,
+    courseId: overdue.course_id,
+    classId: overdue.class_id,
+    actionPath: "/admin/financeiro/cobrancas",
+  });
+
+  if (marinaExamSubmission) {
+    events.push(submissionEvent({
+      teacher: junior,
+      createdAt: "2026-09-16 20:10:00",
+      submission: marinaExamSubmission,
+      studentName: marina.name,
+      classId: marinaNode.class_id,
+    }));
+  }
+  if (pedroReactExamSubmission) {
+    events.push(submissionEvent({
+      teacher: junior,
+      createdAt: "2026-09-18 21:30:00",
+      submission: pedroReactExamSubmission,
+      studentName: pedro.name,
+      classId: pedroReact.class_id,
+    }));
+  }
+  if (pedroReactExamGrade) events.push(gradeEvent({ user: pedro, createdAt: "2026-09-19 11:00:00", grade: pedroReactExamGrade, classId: pedroReact.class_id, actorUserId }));
+
+  if (chatMessage) {
+    const preview = String(chatMessage.body || "").trim();
+    events.push({
+      userId: junior.user_id,
+      email: junior.email,
+      createdAt: "2026-09-20 15:12:00",
+      type: "chat.message.received",
+      category: "chat",
+      priority: "normal",
+      title: `Nova mensagem de ${marina.name}`,
+      message: preview.length > 140 ? `${preview.slice(0, 140)}...` : preview,
+      sourceType: "chat_message",
+      sourceId: chatMessage.id,
+      actorUserId: marina.user_id,
+      courseId: chatMessage.course_id || marinaNode.course_id,
+      classId: chatMessage.class_id || marinaNode.class_id,
+      actionPath: "/professor/chat",
+    });
+  }
+
+  if (pedroChatMessage) {
+    const preview = String(pedroChatMessage.body || "").trim();
+    events.push({
+      userId: junior.user_id,
+      email: junior.email,
+      createdAt: "2026-09-22 16:40:00",
+      type: "chat.message.received",
+      category: "chat",
+      priority: "normal",
+      title: `Nova mensagem de ${pedro.name}`,
+      message: preview.length > 140 ? `${preview.slice(0, 140)}...` : preview,
+      sourceType: "chat_message",
+      sourceId: pedroChatMessage.id,
+      actorUserId: pedro.user_id,
+      courseId: pedroChatMessage.course_id || pedroReact.course_id,
+      classId: pedroChatMessage.class_id || pedroReact.class_id,
+      actionPath: "/professor/chat",
+    });
+  }
+
+  return events;
 }
 
 async function ensureEvent(conn, event) {
@@ -490,6 +720,56 @@ async function ensureEvent(conn, event) {
   return created;
 }
 
+async function ensurePedroQuestion(conn, { pedro, junior, pedroReact }) {
+  let conversation = await one(
+    conn,
+    `SELECT id FROM chat_conversations WHERE title = ? AND created_by_user_id = ? LIMIT 1`,
+    [PEDRO_CHAT_TITLE, pedro.user_id]
+  );
+
+  if (!conversation) {
+    const [result] = await conn.query(
+      `INSERT INTO chat_conversations
+        (type, channel_kind, title, category, course_id, class_id, created_by_user_id,
+         initiator_role, assigned_user_id, status, created_at, updated_at)
+       VALUES ('teacher_support', 'ticket', ?, 'activity', ?, ?, ?, 'student', ?, 'waiting_staff', ?, ?)`,
+      [
+        PEDRO_CHAT_TITLE,
+        pedroReact.course_id,
+        pedroReact.class_id,
+        pedro.user_id,
+        junior.user_id,
+        "2026-09-22 16:40:00",
+        "2026-09-22 16:40:00",
+      ]
+    );
+    conversation = { id: result.insertId };
+    await conn.query(
+      `INSERT INTO chat_participants (conversation_id, user_id, participant_role, can_post, joined_at, created_at, updated_at)
+       VALUES (?, ?, 'student', 1, ?, ?, ?), (?, ?, 'teacher', 1, ?, ?, ?)`,
+      [
+        conversation.id, pedro.user_id, "2026-09-22 16:40:00", "2026-09-22 16:40:00", "2026-09-22 16:40:00",
+        conversation.id, junior.user_id, "2026-09-22 16:40:00", "2026-09-22 16:40:00", "2026-09-22 16:40:00",
+      ]
+    );
+  }
+
+  const existing = await loadChatFromStudent(conn, { title: PEDRO_CHAT_TITLE, senderEmail: pedro.email });
+  if (existing) return existing;
+
+  const [message] = await conn.query(
+    `INSERT INTO chat_messages (conversation_id, sender_user_id, message_type, body, created_at)
+     VALUES (?, ?, 'text', ?, ?)`,
+    [conversation.id, pedro.user_id, PEDRO_CHAT_BODY, "2026-09-22 16:40:00"]
+  );
+  await conn.query(
+    `UPDATE chat_conversations SET last_message_id = ?, last_message_at = ? WHERE id = ?`,
+    [message.insertId, "2026-09-22 16:40:00", conversation.id]
+  );
+
+  return loadChatFromStudent(conn, { title: PEDRO_CHAT_TITLE, senderEmail: pedro.email });
+}
+
 async function seedSchema(conn, schemaName) {
   const marina = await loadStudent(conn, MARINA_EMAIL);
   const pedro = await loadStudent(conn, PEDRO_EMAIL);
@@ -534,6 +814,25 @@ async function seedSchema(conn, schemaName) {
     studentId: pedro.student_id,
     courseId: pedroNode.course_id,
   });
+  const junior = await loadUser(conn, ACTOR_EMAIL);
+  const larissa = await loadUser(conn, LARISSA_EMAIL);
+  const marinaFirstGrade = await loadGrade(conn, { studentId: marina.student_id, title: NODE_FIRST_QUIZ });
+  const pedroFirstGrade = await loadGrade(conn, { studentId: pedro.student_id, title: NODE_FIRST_QUIZ });
+  const pedroReactGrade = await loadGrade(conn, { studentId: pedro.student_id, title: REACT_FIRST_QUIZ });
+  const pedroReactExamGrade = await loadGrade(conn, { studentId: pedro.student_id, title: REACT_EXAM_TITLE });
+  const marinaMiddlewareSubmission = await loadSubmission(conn, { studentId: marina.student_id, title: NODE_MIDDLEWARE });
+  const marinaExamSubmission = await loadSubmission(conn, { studentId: marina.student_id, title: NODE_EXAM_TITLE });
+  const pedroReactExamSubmission = await loadSubmission(conn, { studentId: pedro.student_id, title: REACT_EXAM_TITLE });
+  const chatMessage = await loadChatFromStudent(conn, { title: CHAT_TITLE, senderEmail: MARINA_EMAIL });
+  const pedroChatMessage = await ensurePedroQuestion(conn, { pedro, junior, pedroReact });
+  const nodeFirstQuiz = await loadActivity(conn, { title: NODE_FIRST_QUIZ, courseId: marinaNode.course_id });
+  const nodeMiddlewareActivity = await loadActivity(conn, { title: NODE_MIDDLEWARE, courseId: marinaNode.course_id });
+  const nodeExam = await loadActivity(conn, { title: NODE_EXAM_TITLE, courseId: marinaNode.course_id });
+  const reactFirstQuiz = await loadActivity(conn, { title: REACT_FIRST_QUIZ, courseId: pedroReact.course_id });
+  const reactExam = await loadActivity(conn, { title: REACT_EXAM_TITLE, courseId: pedroReact.course_id });
+  const marinaPaymentDetail = await loadPaymentDetail(conn, { studentId: marina.student_id, courseId: marinaNode.course_id });
+  const pedroNodePayment = await loadPaymentDetail(conn, { studentId: pedro.student_id, courseId: pedroNode.course_id });
+  const pedroReactPayment = await loadPaymentDetail(conn, { studentId: pedro.student_id, courseId: pedroReact.course_id });
 
   const events = buildEvents({
     marina,
@@ -553,24 +852,76 @@ async function seedSchema(conn, schemaName) {
     overdue,
     marinaPayment,
     pedroPayment,
-  });
+  }).concat(buildContinuedStory({
+    marina,
+    pedro,
+    junior,
+    larissa,
+    actorUserId: actor?.id || junior.user_id,
+    marinaNode,
+    pedroNode,
+    pedroReact,
+    overdue,
+    marinaFirstGrade,
+    pedroFirstGrade,
+    pedroReactGrade,
+    pedroReactExamGrade,
+    marinaMiddlewareSubmission,
+    marinaExamSubmission,
+    pedroReactExamSubmission,
+    chatMessage,
+    pedroChatMessage,
+    marinaPaymentDetail,
+    pedroNodePayment,
+    pedroReactPayment,
+    nodeFirstQuiz,
+    nodeMiddlewareActivity,
+    nodeExam,
+    reactFirstQuiz,
+    reactExam,
+  })).sort((left, right) => left.createdAt.localeCompare(right.createdAt) || left.email.localeCompare(right.email));
 
   await conn.beginTransaction();
   try {
+    await conn.query(
+      `DELETE nd FROM notification_deliveries nd
+       INNER JOIN notification_recipients nr ON nr.id = nd.recipient_id
+       INNER JOIN notifications n ON n.id = nr.notification_id
+       WHERE n.deduplication_key LIKE 'demo.student.journey:%'`
+    );
+    await conn.query(
+      `DELETE nr FROM notification_recipients nr
+       INNER JOIN notifications n ON n.id = nr.notification_id
+       WHERE n.deduplication_key LIKE 'demo.student.journey:%'`
+    );
+    await conn.query(`DELETE FROM notifications WHERE deduplication_key LIKE 'demo.student.journey:%'`);
+
     let created = 0;
     for (const event of events) {
       if (await ensureEvent(conn, event)) created += 1;
     }
+
+    await conn.query(
+      `UPDATE notification_recipients nr
+       INNER JOIN notifications n ON n.id = nr.notification_id
+       INNER JOIN users u ON u.id = nr.user_id
+       SET nr.archived_at = '2026-08-01 08:00:00'
+       WHERE u.email = ?
+         AND nr.archived_at IS NULL
+         AND n.type IN ('admin.user.created', 'admin.enrollment.created')`,
+      [LARISSA_EMAIL]
+    );
+
     await conn.commit();
 
     const [counts] = await conn.query(
       `SELECT u.email, COUNT(nr.id) AS inbox
        FROM users u
        LEFT JOIN notification_recipients nr ON nr.user_id = u.id AND nr.archived_at IS NULL
-       WHERE u.email IN (?, ?)
+       WHERE u.email IN (?, ?, ?, ?)
        GROUP BY u.email
        ORDER BY u.email`,
-      [MARINA_EMAIL, PEDRO_EMAIL]
+      [MARINA_EMAIL, PEDRO_EMAIL, ACTOR_EMAIL, LARISSA_EMAIL]
     );
 
     console.log(`${schemaName}: ${created} novas, ${events.length - created} já existiam.`);

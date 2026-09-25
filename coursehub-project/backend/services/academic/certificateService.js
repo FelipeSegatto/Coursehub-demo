@@ -21,6 +21,35 @@ const {
 } = require("./academicDocumentHelpers");
 const { evaluateEnrollmentCompletion } = require("./enrollmentCompletionService");
 const { buildVerificationUrl, buildVerificationQrDataUri } = require("../documents/templates/academic/verificationQrCode");
+const { todayInAppTimezone } = require("../demo/demoDueDates");
+
+function normalizeCompletionDate(value) {
+  if (value === undefined || value === null || value === "") return null;
+
+  const match = String(value).trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) {
+    throw createServiceError("Informe a data de conclusão no formato AAAA-MM-DD.", 400);
+  }
+
+  const iso = `${match[1]}-${match[2]}-${match[3]}`;
+  const parsed = new Date(`${iso}T00:00:00`);
+  if (Number.isNaN(parsed.getTime()) || parsed.getUTCFullYear() !== Number(match[1])) {
+    throw createServiceError("Data de conclusão inválida.", 400);
+  }
+
+  return iso;
+}
+
+function resolveCompletionDate(value) {
+  if (value === undefined || value === null) return todayInAppTimezone();
+
+  const parsed = normalizeCompletionDate(value);
+  if (!parsed) {
+    throw createServiceError("Informe a data de conclusão do certificado.", 400);
+  }
+
+  return parsed;
+}
 
 const DOCUMENT_TYPE = "certificate";
 
@@ -43,7 +72,7 @@ function toCertificateDto(row, documentStatus, canDownload) {
  * rede; o worker/renderer também nunca busca a imagem, só embute o
  * data URI já pronto que veio no snapshot congelado.
  */
-async function buildCertificateSnapshot(enrollment, evaluation, verificationCode) {
+async function buildCertificateSnapshot(enrollment, evaluation, verificationCode, completedAt) {
   const verificationQrDataUri = await buildVerificationQrDataUri(verificationCode);
   const verificationUrl = buildVerificationUrl(verificationCode);
 
@@ -52,16 +81,17 @@ async function buildCertificateSnapshot(enrollment, evaluation, verificationCode
     verificationQrDataUri,
     student: { name: enrollment.student_name, document: enrollment.student_cpf },
     course: { name: enrollment.course_name, workloadHours: enrollment.workload_hours },
-    completedAt: enrollment.completed_at,
+    completedAt,
     verificationCode,
     issuedAt: new Date(),
     eligibility: evaluation,
   };
 }
 
-async function issueCertificate(db, { enrollmentId, actorUserId, reissueOfCertificateId = null }) {
+async function issueCertificate(db, { enrollmentId, actorUserId, reissueOfCertificateId = null, params = {} }) {
   const enrollment = await loadEnrollmentForAcademicDocument(db, enrollmentId, { scope: "admin" });
   const evaluation = await evaluateEnrollmentCompletion(db, enrollmentId);
+  const completedAt = resolveCompletionDate(params.completedAt);
 
   if (!evaluation.eligible) {
     const unmet = evaluation.requirements
@@ -96,10 +126,10 @@ async function issueCertificate(db, { enrollmentId, actorUserId, reissueOfCertif
   // verificação ANTIGO impresso nele), o que seria incorreto: um
   // certificado reemitido tem um código novo e precisa de um PDF novo.
   const idempotencyKey = reissueOfCertificateId
-    ? `certificate:enrollment:${enrollmentId}:rule:${evaluation.completionRuleId}:v${template.version}:reissue:${reissueOfCertificateId}`
-    : `certificate:enrollment:${enrollmentId}:rule:${evaluation.completionRuleId}:v${template.version}`;
+    ? `certificate:enrollment:${enrollmentId}:rule:${evaluation.completionRuleId}:v${template.version}:completed:${completedAt}:reissue:${reissueOfCertificateId}`
+    : `certificate:enrollment:${enrollmentId}:rule:${evaluation.completionRuleId}:v${template.version}:completed:${completedAt}`;
 
-  const snapshot = await buildCertificateSnapshot(enrollment, evaluation, verificationCode);
+  const snapshot = await buildCertificateSnapshot(enrollment, evaluation, verificationCode, completedAt);
 
   const documentDto = await enqueueDocument(db, {
     documentType: DOCUMENT_TYPE,
@@ -191,7 +221,7 @@ async function revokeCertificate(db, { certificateId, actorUserId, reason }) {
   }
 }
 
-async function reissueCertificate(db, { certificateId, actorUserId }) {
+async function reissueCertificate(db, { certificateId, actorUserId, completedAt = null }) {
   const [oldRows] = await db.promise().query(`SELECT * FROM certificates WHERE id = ?`, [certificateId]);
 
   if (oldRows.length === 0) {
@@ -208,6 +238,7 @@ async function reissueCertificate(db, { certificateId, actorUserId }) {
     enrollmentId: old.enrollment_id,
     actorUserId,
     reissueOfCertificateId: old.id,
+    params: { completedAt },
   });
 
   await db

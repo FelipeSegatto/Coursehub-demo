@@ -15,14 +15,14 @@ const VARIANT_CLASSES = {
     "text-amber-700 hover:bg-amber-50 focus-visible:ring-amber-500",
 
   danger:
-    "text-red-600 hover:bg-red-50 focus-visible:ring-red-500",
+    "border border-rose-200 bg-rose-50 text-rose-700 shadow-sm hover:border-rose-300 hover:bg-rose-100 focus-visible:ring-rose-500",
 };
 
 const HOLD_REST_CLASSES = {
   warning:
     "border-2 border-amber-500 bg-white text-amber-800 shadow-sm hover:bg-amber-50 focus-visible:ring-amber-500",
   danger:
-    "border-2 border-red-500 bg-white text-red-700 shadow-sm hover:bg-red-50 focus-visible:ring-red-500",
+    "border border-rose-300 bg-gradient-to-b from-white to-rose-50 text-rose-800 shadow-sm hover:border-rose-400 focus-visible:ring-rose-500",
 };
 
 const HOLD_FILL_CLASSES = {

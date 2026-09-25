@@ -172,8 +172,40 @@ async function startWorker() {
   console.log("[documentGenerationWorker] stopped");
 }
 
+/**
+ * Roda o ciclo dentro do processo da API. O processo dedicado
+ * (docker worker-documents) continua existindo; a API do compose
+ * desliga este laço com DOCUMENT_WORKER_EMBEDDED=false para não
+ * abrir um segundo Chrome.
+ */
+function startEmbeddedWorker() {
+  if (process.env.DOCUMENT_WORKER_EMBEDDED === "false") return;
+
+  const config = getConfig();
+
+  if (!config.enabled) return;
+
+  console.log(
+    `[documentGenerationWorker] embedded (workerId=${config.workerId}, pollIntervalMs=${config.pollIntervalMs})`
+  );
+
+  const loop = async () => {
+    while (true) {
+      try {
+        await runCycle(config);
+      } catch (error) {
+        console.error("[documentGenerationWorker] cycle error:", error.message);
+      }
+
+      await sleep(config.pollIntervalMs);
+    }
+  };
+
+  loop();
+}
+
 if (require.main === module) {
   startWorker();
 }
 
-module.exports = { runCycle, processJob, getConfig };
+module.exports = { runCycle, processJob, getConfig, startEmbeddedWorker };

@@ -2,6 +2,22 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../../services/APIService";
 import MultiSelectField from "./MultiSelectField";
 
+function normalizeIdList(ids) {
+  return [...new Set((ids || []).map((id) => Number(id)))]
+    .filter((id) => Number.isInteger(id) && id > 0)
+    .sort((left, right) => left - right);
+}
+
+function sameIdList(left, right) {
+  const normalizedLeft = normalizeIdList(left);
+  const normalizedRight = normalizeIdList(right);
+
+  return (
+    normalizedLeft.length === normalizedRight.length &&
+    normalizedLeft.every((id, index) => id === normalizedRight[index])
+  );
+}
+
 function AdminCreateEditModal({
   mode = "create",
   variant = "student",
@@ -83,6 +99,7 @@ function AdminCreateEditModal({
 
   const [courses, setCourses] = useState([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
+  const [courseLinkConfirm, setCourseLinkConfirm] = useState(false);
 
   /*
    * Busca os professores somente quando
@@ -223,6 +240,7 @@ function AdminCreateEditModal({
       courseIds:
         initialData.courseIds || [],
     });
+    setCourseLinkConfirm(false);
   }, [
     isEditMode,
     initialData,
@@ -650,6 +668,16 @@ function AdminCreateEditModal({
       return;
     }
 
+    const courseLinksChanged =
+      isEditMode &&
+      isTeacherVariant &&
+      !sameIdList(initialData?.courseIds, formTeacherData.courseIds);
+
+    if (courseLinksChanged && !courseLinkConfirm) {
+      setCourseLinkConfirm(true);
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -710,6 +738,15 @@ function AdminCreateEditModal({
     loadingTeachers ||
     loadingInitialData;
 
+  const originalCourseIds = normalizeIdList(initialData?.courseIds);
+  const nextCourseIds = normalizeIdList(formTeacherData.courseIds);
+  const removedCourseIds = originalCourseIds.filter((id) => !nextCourseIds.includes(id));
+  const addedCourseIds = nextCourseIds.filter((id) => !originalCourseIds.includes(id));
+
+  function courseName(id) {
+    return courses.find((course) => Number(course.id) === id)?.name || `Curso ${id}`;
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
       <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col rounded-2xl bg-white shadow-2xl">
@@ -751,6 +788,14 @@ function AdminCreateEditModal({
               </p>
             )}
 
+            {courseLinkConfirm ? (
+              <CourseLinkConfirm
+                teacherName={formTeacherData.name}
+                removedNames={removedCourseIds.map(courseName)}
+                addedNames={addedCourseIds.map(courseName)}
+              />
+            ) : (
+              <>
             {isStudentVariant && (
               <StudentFields
                 formData={formStudentData}
@@ -786,24 +831,33 @@ function AdminCreateEditModal({
               />
             )}
 
+              </>
+            )}
+
             <div className="sticky bottom-0 -mx-6 flex justify-end gap-3 border-t border-gray-200 bg-white px-6 py-4">
               <button
                 type="button"
-                onClick={handleCloseModal}
+                onClick={courseLinkConfirm ? () => setCourseLinkConfirm(false) : handleCloseModal}
                 disabled={isModalBusy}
                 className="rounded-xl border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Cancelar
+                {courseLinkConfirm ? "Voltar" : "Cancelar"}
               </button>
 
               <button
                 type="submit"
                 disabled={isModalBusy}
-                className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-blue-700 hover:shadow-lg disabled:cursor-not-allowed disabled:bg-blue-300"
+                className={`rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:shadow-lg disabled:cursor-not-allowed ${
+                  courseLinkConfirm
+                    ? "bg-rose-700 hover:bg-rose-800 disabled:bg-rose-300"
+                    : "bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300"
+                }`}
               >
                 {loading
                   ? "Salvando..."
-                  : loadingTeachers
+                  : courseLinkConfirm
+                    ? "Confirmar alteração do vínculo"
+                    : loadingTeachers
                     ? "Carregando professores..."
                     : submitButtonText}
               </button>
@@ -812,6 +866,49 @@ function AdminCreateEditModal({
         )}
       </div>
     </div>
+  );
+}
+
+function CourseLinkConfirm({ teacherName, removedNames, addedNames }) {
+  return (
+    <div className="rounded-2xl border border-rose-200 bg-rose-50/70 p-5">
+      <p className="text-sm font-semibold text-rose-950">
+        Confirmar a mudança de vínculo
+      </p>
+      <p className="mt-2 text-sm leading-6 text-rose-900">
+        {teacherName ? `${teacherName} deixa de seguir a lista atual de cursos.` : "Este professor deixa de seguir a lista atual de cursos."}{" "}
+        A chamada, os materiais e a fila de correção passam a usar os cursos confirmados aqui.
+      </p>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-xl bg-white px-4 py-3 ring-1 ring-rose-100">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-rose-500">
+            Sai do vínculo
+          </p>
+          <CourseNameList names={removedNames} emptyLabel="Nenhum curso removido." />
+        </div>
+        <div className="rounded-xl bg-white px-4 py-3 ring-1 ring-emerald-100">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-600">
+            Entra no vínculo
+          </p>
+          <CourseNameList names={addedNames} emptyLabel="Nenhum curso novo." />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CourseNameList({ names, emptyLabel }) {
+  if (names.length === 0) {
+    return <p className="mt-2 text-sm text-slate-500">{emptyLabel}</p>;
+  }
+
+  return (
+    <ul className="mt-2 space-y-1 text-sm font-medium text-slate-800">
+      {names.map((name) => (
+        <li key={name}>{name}</li>
+      ))}
+    </ul>
   );
 }
 

@@ -1,13 +1,57 @@
+const fs = require("fs");
+const path = require("path");
 const mysql = require("mysql2/promise");
 const simulatedGateway = require("../paymentGateway/simulatedGateway");
 
 const LIVE_DB = process.env.DB_NAME || "coursehub_escola";
 const SNAPSHOT_DB = process.env.DEMO_SNAPSHOT_DB || "coursehub_escola_jornada";
+const DEFAULT_DELAY_MS = 60 * 60 * 1000;
+const RETRY_DELAY_MS = 60 * 1000;
 
 let resetInProgress = null;
+let deadlineAt = null;
+let timer = null;
 
 function isDemoResetEnabled() {
   return String(process.env.DEMO_RESET_ON_LOGOUT || "").toLowerCase() === "true";
+}
+
+function resetDelayMs() {
+  const configured = Number(process.env.DEMO_RESET_DELAY_MS);
+  return Number.isFinite(configured) && configured > 0 ? configured : DEFAULT_DELAY_MS;
+}
+
+function deadlineFilePath() {
+  return (
+    process.env.DEMO_RESET_STATE_PATH ||
+    path.join(__dirname, "../../storage/demo-reset-at.json")
+  );
+}
+
+function readDeadline() {
+  try {
+    const raw = fs.readFileSync(deadlineFilePath(), "utf8");
+    const parsed = Date.parse(JSON.parse(raw).resetAt);
+    return Number.isFinite(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeDeadline(timestamp) {
+  const filePath = deadlineFilePath();
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  const temporaryPath = `${filePath}.tmp`;
+  fs.writeFileSync(temporaryPath, JSON.stringify({ resetAt: new Date(timestamp).toISOString() }));
+  fs.renameSync(temporaryPath, filePath);
+}
+
+function clearDeadlineFile() {
+  try {
+    fs.unlinkSync(deadlineFilePath());
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+  }
 }
 
 function quoteIdent(name) {
@@ -140,11 +184,20 @@ async function runReset() {
     }
 
     // O gateway simulado guarda pagamentos em memória. Se não limparmos,
-    // um timer de autoaprovação criado antes do logout pode reaparecer
+    // um timer de autoaprovação criado antes do reset pode reaparecer
     // depois do banco já ter sido restaurado.
     if (typeof simulatedGateway.resetStore === "function") {
       simulatedGateway.resetStore();
     }
+
+    const { shiftRoteiroDueDatesToToday } = require("./demoDueDates");
+    const { applyDemoBaseline } = require("../../scripts/demo/seedCompletionRules");
+    await applyDemoBaseline().catch((baselineError) => {
+      console.error("Falha ao reaplicar as regras de conclusão depois do reset:", baselineError.message);
+    });
+    await shiftRoteiroDueDatesToToday().catch((shiftError) => {
+      console.error("Falha ao alinhar o vencimento do roteiro depois do reset:", shiftError.message);
+    });
 
     return {
       reset: true,
@@ -158,7 +211,6 @@ async function runReset() {
 }
 
 async function restoreDemoSnapshot() {
-  // Impede dois logouts simultâneos de executarem dois resets concorrentes.
   if (resetInProgress) {
     return resetInProgress;
   }
@@ -170,7 +222,71 @@ async function restoreDemoSnapshot() {
   return resetInProgress;
 }
 
+function armTimer() {
+  if (timer) clearTimeout(timer);
+  if (deadlineAt === null) return;
+
+  const armedFor = deadlineAt;
+  timer = setTimeout(() => {
+    timer = null;
+    fireScheduledReset(armedFor).catch((error) => {
+      console.error("Erro ao restaurar o snapshot da demo:", error);
+    });
+  }, Math.max(0, armedFor - Date.now()));
+
+  if (typeof timer.unref === "function") timer.unref();
+}
+
+async function fireScheduledReset(armedFor) {
+  if (!isDemoResetEnabled() || deadlineAt !== armedFor) return;
+
+  if (Date.now() + 250 < deadlineAt) {
+    armTimer();
+    return;
+  }
+
+  try {
+    await restoreDemoSnapshot();
+  } catch (error) {
+    console.error("Erro ao restaurar o snapshot da demo. Nova tentativa em 1 minuto:", error);
+    if (deadlineAt === armedFor) {
+      deadlineAt = Date.now() + RETRY_DELAY_MS;
+      writeDeadline(deadlineAt);
+      armTimer();
+    }
+    return;
+  }
+
+  if (deadlineAt === armedFor) {
+    deadlineAt = null;
+    clearDeadlineFile();
+  }
+}
+
+function scheduleDemoResetAfterLogin(now = Date.now()) {
+  if (!isDemoResetEnabled()) {
+    return { scheduled: false, reason: "disabled" };
+  }
+
+  deadlineAt = now + resetDelayMs();
+  writeDeadline(deadlineAt);
+  armTimer();
+
+  return { scheduled: true, resetAt: new Date(deadlineAt).toISOString() };
+}
+
+function resumeDemoResetSchedule() {
+  if (!isDemoResetEnabled()) return;
+
+  deadlineAt = readDeadline();
+  if (deadlineAt === null) return;
+
+  armTimer();
+}
+
 module.exports = {
   isDemoResetEnabled,
   restoreDemoSnapshot,
+  scheduleDemoResetAfterLogin,
+  resumeDemoResetSchedule,
 };

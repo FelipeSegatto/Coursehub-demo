@@ -238,6 +238,41 @@ async function getStudentActivityDetail(db, { userId, activityId }) {
  * curso — quando a atividade é exclusiva de uma turma, o aluno
  * precisa estar matriculado exatamente naquela turma.
  */
+/**
+ * Professor titular da turma em que o aluno enviou a atividade ou a
+ * avaliação. Atividades do curso inteiro (class_id nulo) usam a turma
+ * da matrícula ativa do aluno naquele curso.
+ */
+async function resolveSubmittingClassTeacher(runner, { courseId, studentId, classId }) {
+  const [rows] = await runner.query(
+    `
+    SELECT u.id AS userId, u.name AS name, u.email AS email
+    FROM classes cl
+    INNER JOIN enrollments e
+      ON e.class_id = cl.id
+      AND e.student_id = ?
+      AND e.status = 'active'
+    INNER JOIN teachers t ON t.id = cl.teacher_id
+    INNER JOIN users u ON u.id = t.user_id
+    WHERE cl.course_id = ?
+      AND (? IS NULL OR cl.id = ?)
+      AND t.status = 'active'
+      AND u.status = 'active'
+    LIMIT 1
+    `,
+    [studentId, courseId, classId || null, classId || null]
+  );
+
+  if (!rows[0]) return null;
+
+  return {
+    userId: rows[0].userId,
+    name: rows[0].name,
+    email: rows[0].email,
+    role: "teacher",
+  };
+}
+
 async function submitActivityAnswers(
   db,
   { userId, activityId, answers, fullscreenExitCount }
@@ -523,6 +558,16 @@ async function submitActivityAnswers(
     const teacherRecipients = await resolveTeachersForCourse(connection, {
       courseId: activity.course_id,
     });
+
+    const classTeacher = await resolveSubmittingClassTeacher(connection, {
+      courseId: activity.course_id,
+      studentId,
+      classId: activity.class_id,
+    });
+
+    if (classTeacher && !teacherRecipients.some((teacher) => teacher.userId === classTeacher.userId)) {
+      teacherRecipients.push(classTeacher);
+    }
 
     if (teacherRecipients.length > 0) {
       const [courseRows] = await connection.query(

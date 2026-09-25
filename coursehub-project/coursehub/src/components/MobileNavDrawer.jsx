@@ -6,7 +6,7 @@ export default function MobileNavDrawer({
   onClose,
   title,
   children,
-  breakpointClass = "md:hidden",
+  breakpointClass = "lg:hidden",
 }) {
   useEffect(() => {
     if (!isOpen) return undefined;

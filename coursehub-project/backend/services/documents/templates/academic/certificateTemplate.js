@@ -348,7 +348,7 @@ function render(data) {
       <div class="student-name">${escapeHtml(student.name)}</div>
 
       <div class="course-copy">
-        concluiu com aproveitamento o curso<br>
+        concluiu com aproveitamento, em ${formatDate(completedAt)}, o curso<br>
         <strong>${escapeHtml(course.name)}</strong><br>
         ${course.workloadHours ? `com carga horária de <strong>${escapeHtml(String(course.workloadHours))} horas.</strong>` : ""}
       </div>

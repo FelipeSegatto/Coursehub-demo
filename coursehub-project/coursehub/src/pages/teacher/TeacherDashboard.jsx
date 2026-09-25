@@ -79,7 +79,7 @@ export default function TeacherDashboard() {
       <div className="mx-auto max-w-7xl">
         <section className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-blue-600">
+            <p className="text-sm font-semibold text-slate-500">
               Área do Professor
             </p>
 
@@ -119,7 +119,7 @@ export default function TeacherDashboard() {
 
         {loading && !dashboard ? (
           <div className="flex min-h-[420px] items-center justify-center">
-            <span className="h-10 w-10 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600" />
+            <span className="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-slate-900" />
           </div>
         ) : (
           <>
@@ -127,6 +127,7 @@ export default function TeacherDashboard() {
               <StatCard
                 title="Turmas ativas"
                 value={summary?.activeClasses ?? 0}
+                color="ink"
               />
 
               <StatCard
@@ -138,7 +139,7 @@ export default function TeacherDashboard() {
               <StatCard
                 title="Revisões pendentes"
                 value={summary?.pendingReviews ?? 0}
-                color={summary?.pendingReviews > 0 ? "yellow" : "blue"}
+                color={summary?.pendingReviews > 0 ? "yellow" : "ink"}
               />
 
               <StatCard
@@ -168,7 +169,7 @@ export default function TeacherDashboard() {
 
                   <Link
                     to="/professor/atividades"
-                    className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
                   >
                     Ver todas
                   </Link>
@@ -184,7 +185,7 @@ export default function TeacherDashboard() {
                       <Link
                         key={task.activityId}
                         to={task.deepLink}
-                        className="block rounded-xl border border-gray-100 bg-gray-50 p-5 transition hover:border-blue-200"
+                        className="block rounded-xl border border-gray-100 bg-gray-50 p-5 transition hover:border-slate-300"
                       >
                         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                           <div>
@@ -204,7 +205,7 @@ export default function TeacherDashboard() {
                             </span>
 
                             {task.dueDate && (
-                              <span className="rounded-full bg-blue-100 px-3 py-1 font-semibold text-blue-700">
+                              <span className="rounded-full bg-stone-100 px-3 py-1 font-semibold text-slate-700">
                                 {formatShortDate(task.dueDate)}
                               </span>
                             )}
@@ -258,7 +259,7 @@ export default function TeacherDashboard() {
                             </p>
                           </div>
 
-                          <span className="text-sm font-semibold text-blue-600">
+                          <span className="text-sm font-semibold text-slate-700">
                             {classItem.activeStudentCount} alunos
                           </span>
                         </div>
@@ -268,7 +269,7 @@ export default function TeacherDashboard() {
                     {classesOverview.length > listedClasses.length && (
                       <Link
                         to="/professor/minhas-turmas"
-                        className="block text-center text-sm font-semibold text-blue-600"
+                        className="block text-center text-sm font-semibold text-slate-700"
                       >
                         Ver todas as turmas
                       </Link>
@@ -292,7 +293,7 @@ export default function TeacherDashboard() {
                       <Link
                         key={session.sessionId}
                         to={session.deepLink}
-                        className="block rounded-xl border border-gray-100 p-4 text-sm transition hover:border-blue-200"
+                        className="block rounded-xl border border-gray-100 p-4 text-sm transition hover:border-slate-300"
                       >
                         <p className="font-semibold text-gray-900">
                           {session.title}
@@ -310,12 +311,12 @@ export default function TeacherDashboard() {
               </div>
             </section>
 
-            <section className="mt-8 rounded-2xl bg-blue-600 p-8 text-white">
+            <section className="mt-8 rounded-2xl bg-slate-950 p-8 text-white">
               <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                 <div>
                   <h2 className="text-2xl font-bold">Prioridade do dia</h2>
 
-                  <p className="mt-2 max-w-2xl text-blue-100">
+                  <p className="mt-2 max-w-2xl text-slate-300">
                     {summary?.pendingReviews > 0
                       ? `Você tem ${summary.pendingReviews} atividade(s) aguardando correção.`
                       : "Nenhuma correção pendente — tudo em dia por aqui."}
@@ -324,7 +325,7 @@ export default function TeacherDashboard() {
 
                 <Link
                   to="/professor/atividades"
-                  className="rounded-xl bg-white px-5 py-3 font-semibold text-blue-600 transition hover:bg-blue-50"
+                  className="rounded-xl bg-white px-5 py-3 font-semibold text-slate-950 transition hover:bg-stone-100"
                 >
                   Ver atividades
                 </Link>

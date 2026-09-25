@@ -111,7 +111,7 @@ export default function NavbarStudent() {
         <nav
           className="
             hidden items-center justify-center
-            gap-7 md:flex
+            gap-7 lg:flex
           "
           aria-label="Navegação do aluno"
         >
@@ -226,7 +226,7 @@ export default function NavbarStudent() {
               hover:bg-slate-800
               hover:shadow-lg
               hover:shadow-slate-950/15
-              md:flex
+              lg:flex
             "
           >
             Meu perfil
@@ -251,7 +251,7 @@ export default function NavbarStudent() {
             type="button"
             onClick={() => setIsMenuOpen(true)}
             aria-label="Abrir menu"
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 transition hover:bg-gray-50 md:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-700 transition hover:bg-gray-50 lg:hidden"
           >
             <Menu className="h-5 w-5" aria-hidden="true" />
           </button>
