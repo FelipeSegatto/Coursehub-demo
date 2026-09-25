@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { Menu, LogOut } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { useUnreadNotifications } from "../hooks/useUnreadNotifications";
@@ -9,7 +9,6 @@ import NavbarDropdown from "./NavbarDropdown";
 import MobileNavDrawer from "./MobileNavDrawer";
 
 export default function NavbarStudent() {
-  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { logout, estaLogado } = useAuth();
   const { unreadCount } = useUnreadNotifications({ enabled: estaLogado });
@@ -51,8 +50,7 @@ export default function NavbarStudent() {
   ];
 
   async function handleLogout() {
-    await logout();
-    navigate("/", { replace: true });
+    await logout({ goHome: true });
   }
 
   const linkClass = ({ isActive }) =>

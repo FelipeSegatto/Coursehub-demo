@@ -1,81 +1,96 @@
 import { useEffect, useRef, useState } from "react";
-import { MailCheck, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 
-import { getCheckoutSession } from "../../../services/PublicCheckoutService";
+import { confirmCheckoutEmailAutomatically } from "../../../services/PublicCheckoutService";
 
-const POLL_INTERVAL_MS = 4000;
-const MAX_POLLS = 150; // ~10 min, cobre o TTL da sessão com folga
+const MINIMUM_LOADING_MS = 2000;
+const SUCCESS_PAUSE_MS = 1600;
+
+function wait(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 
 /**
- * Aguarda o e-mail ser confirmado em outra aba
- * (VerifyCheckoutEmail.jsx) -- consulta periodicamente
- * GET /sessions/:token até status==='verified', ou até a sessão
- * expirar. Para de consultar ao desmontar, ao confirmar, ou ao
- * atingir MAX_POLLS.
+ * Na demo, a confirmação não depende do link em outra aba.
+ * A tela fica carregando por cerca de dois segundos, mostra
+ * o sucesso e só então libera o restante da compra.
  */
 export default function CheckoutEmailVerificationPending({ checkoutToken, email, onVerified }) {
-  const [expired, setExpired] = useState(false);
-  const pollCountRef = useRef(0);
+  const [phase, setPhase] = useState("loading");
+  const [errorMessage, setErrorMessage] = useState("");
+  const onVerifiedRef = useRef(onVerified);
+
+  useEffect(() => {
+    onVerifiedRef.current = onVerified;
+  }, [onVerified]);
 
   useEffect(() => {
     let cancelled = false;
-    let timeoutId = null;
 
-    async function poll() {
+    async function verify() {
+      const startedAt = Date.now();
+
       try {
-        const result = await getCheckoutSession(checkoutToken);
+        await confirmCheckoutEmailAutomatically(checkoutToken);
+
+        const elapsed = Date.now() - startedAt;
+        await wait(Math.max(0, MINIMUM_LOADING_MS - elapsed));
 
         if (cancelled) return;
 
-        if (result.data.status === "verified") {
-          onVerified();
-          return;
-        }
+        setPhase("success");
+        await wait(SUCCESS_PAUSE_MS);
 
-        pollCountRef.current += 1;
+        if (!cancelled) onVerifiedRef.current();
+      } catch (error) {
+        const elapsed = Date.now() - startedAt;
+        await wait(Math.max(0, MINIMUM_LOADING_MS - elapsed));
 
-        if (pollCountRef.current < MAX_POLLS) {
-          timeoutId = setTimeout(poll, POLL_INTERVAL_MS);
-        } else {
-          setExpired(true);
-        }
-      } catch {
-        if (!cancelled) setExpired(true);
+        if (cancelled) return;
+
+        setPhase("error");
+        setErrorMessage(error.message || "Não foi possível verificar o e-mail.");
       }
     }
 
-    poll();
+    verify();
 
     return () => {
       cancelled = true;
-      if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [checkoutToken, onVerified]);
+  }, [checkoutToken]);
 
   return (
     <div className="space-y-4 py-4 text-center">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-        <MailCheck size={26} aria-hidden="true" />
+      <div
+        className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full ${
+          phase === "success" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-950"
+        }`}
+      >
+        {phase === "success" ? (
+          <CheckCircle2 size={26} aria-hidden="true" />
+        ) : (
+          <Loader2 size={26} className="animate-spin" aria-hidden="true" />
+        )}
       </div>
 
-      <h2 className="text-xl font-semibold tracking-tight text-slate-950">Confirme seu e-mail</h2>
-
-      <p className="text-sm text-slate-500">
-        Enviamos um link de confirmação para <strong className="font-medium text-slate-700">{email}</strong>. Abra
-        o link em uma nova aba para continuar -- esta página atualiza sozinha assim que confirmado.
-      </p>
-
-      {!expired && (
-        <div className="mx-auto flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-medium text-slate-500">
-          <Loader2 size={13} className="animate-spin" aria-hidden="true" />
-          Aguardando confirmação...
-        </div>
+      {phase === "loading" && (
+        <>
+          <h2 className="text-xl font-semibold tracking-tight text-slate-950">Verificando e-mail…</h2>
+          <p className="text-sm text-slate-500">
+            Estamos confirmando <strong className="font-medium text-slate-700">{email}</strong>.
+          </p>
+        </>
       )}
 
-      {expired && (
-        <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-          Não recebemos a confirmação a tempo. Recarregue a página e comece novamente.
-        </p>
+      {phase === "success" && (
+        <h2 className="text-xl font-semibold tracking-tight text-slate-950">E-mail verificado com sucesso!</h2>
+      )}
+
+      {phase === "error" && (
+        <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">{errorMessage}</p>
       )}
     </div>
   );

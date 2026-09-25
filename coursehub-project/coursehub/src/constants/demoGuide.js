@@ -43,7 +43,7 @@ export const DEMO_STEPS = [
   {
     title: "Público",
     detail:
-      "Quem chega sem login: home, catálogo (Node e React), Sobre, Fale conosco, termos e rodapé.",
+      "Quem chega sem login escolhe um curso no catálogo, compra, cria o usuário no checkout e entra no sistema por esse curso. Home, Sobre e Fale conosco continuam abertos para passear.",
   },
   {
     title: "Marina",

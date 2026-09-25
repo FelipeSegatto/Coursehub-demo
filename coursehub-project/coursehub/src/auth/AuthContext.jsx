@@ -9,6 +9,16 @@ import { apiFetch } from "../services/APIService";
 
 const AuthContext = createContext(null);
 
+let leaveToHomeAfterLogout = false;
+
+export function isLeavingToHome() {
+  return leaveToHomeAfterLogout;
+}
+
+export function clearLeaveToHome() {
+  leaveToHomeAfterLogout = false;
+}
+
 export function AuthProvider({ children }) {
   const [usuarioLogado, setUsuarioLogado] =
     useState(null);
@@ -50,7 +60,11 @@ export function AuthProvider({ children }) {
     return data.profile;
   }
 
-  async function logout() {
+  async function logout({ goHome = false } = {}) {
+    if (goHome) {
+      leaveToHomeAfterLogout = true;
+    }
+
     try {
       await apiFetch("/api/auth/logout", {
         method: "POST",
@@ -59,6 +73,10 @@ export function AuthProvider({ children }) {
       console.error("Erro ao sair:", error);
     } finally {
       setUsuarioLogado(null);
+
+      if (goHome) {
+        window.location.replace("/");
+      }
     }
   }
 

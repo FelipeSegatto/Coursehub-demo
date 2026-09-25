@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Eye, EyeOff, LoaderCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Eye, EyeOff, LoaderCircle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { getRoleHomePath } from "../../auth/roleHome";
 import DemoGuide from "../../components/demo/DemoGuide";
@@ -40,6 +40,14 @@ export default function LoginPage() {
 
   return (
     <>
+      <Link
+        to="/"
+        className="mb-8 inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-950"
+      >
+        <ArrowLeft size={16} aria-hidden="true" />
+        Voltar ao início
+      </Link>
+
       <header>
         <p className="text-sm font-semibold text-blue-600">
           Boas-vindas de volta

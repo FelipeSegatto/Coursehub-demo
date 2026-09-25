@@ -191,7 +191,7 @@ export default function CoursePage() {
 
         <Link
           to="/courses"
-          className="mt-6 inline-block rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700"
+          className="mt-6 inline-block rounded-xl bg-slate-950 px-5 py-3 font-semibold text-white transition hover:bg-slate-800"
         >
           Voltar para cursos
         </Link>
@@ -230,7 +230,7 @@ export default function CoursePage() {
     <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <Link
         to="/courses"
-        className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+        className="text-sm font-medium text-slate-500 transition hover:text-slate-950"
       >
         ← Voltar para cursos
       </Link>
@@ -241,7 +241,7 @@ export default function CoursePage() {
 
       <div className="mt-4 flex flex-wrap gap-3">
         {course.nivel && (
-          <span className="rounded-xl bg-blue-100 px-4 py-2 text-blue-700">
+          <span className="rounded-xl bg-slate-100 px-4 py-2 text-slate-700">
             {course.nivel}
           </span>
         )}
@@ -333,7 +333,7 @@ export default function CoursePage() {
           type="button"
           onClick={handleComprarClick}
           disabled={!pricingPlans.length && !plansLoading}
-          className="mt-6 rounded-2xl bg-blue-600 px-6 py-4 text-lg font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+          className="mt-6 rounded-xl bg-slate-950 px-6 py-4 text-lg font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           Comprar curso
         </button>
@@ -345,53 +345,55 @@ export default function CoursePage() {
             Formas de pagamento
           </h2>
 
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="mt-4 grid items-stretch gap-4 md:grid-cols-2">
             {pricingPlans.map((plan) => {
               const methods = Object.entries(PAYMENT_METHOD_LABEL)
                 .filter(([key]) => plan[key])
                 .map(([, label]) => label);
 
               return (
-                <div
+                <article
                   key={plan.id}
-                  className="rounded-2xl border border-gray-200 bg-white p-5"
+                  className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5"
                 >
-                  <p className="text-sm font-semibold text-blue-600">
+                  <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
                     {BILLING_TYPE_LABEL[plan.billingType] || plan.billingType}
                   </p>
 
-                  <h3 className="mt-1 text-lg font-bold text-gray-900">
+                  <h3 className="mt-2 text-lg font-semibold tracking-tight text-slate-950">
                     {plan.name}
                   </h3>
 
                   {plan.description && (
-                    <p className="mt-1 text-sm text-gray-500">{plan.description}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-500">{plan.description}</p>
                   )}
 
-                  <p className="mt-3 text-xl font-bold text-gray-900">
+                  <p className="mt-4 text-2xl font-semibold tracking-tight text-slate-950 tabular-nums">
                     {formatCurrency(plan.totalAmount)}
                   </p>
 
                   {plan.billingType === "monthly_plan" && plan.monthlyPaymentCount && (
-                    <p className="text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-slate-500">
                       {plan.monthlyPaymentCount}x de {formatCurrency(plan.monthlyPaymentAmount)}
                     </p>
                   )}
 
                   {methods.length > 0 && (
-                    <p className="mt-3 text-xs text-gray-400">
+                    <p className="mt-3 text-xs text-slate-400">
                       Aceita: {methods.join(", ")}
                     </p>
                   )}
 
-                  <button
-                    type="button"
-                    onClick={() => goToCheckout(plan.id)}
-                    className="mt-4 w-full rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
-                  >
-                    Contratar este plano
-                  </button>
-                </div>
+                  <div className="mt-auto pt-6">
+                    <button
+                      type="button"
+                      onClick={() => goToCheckout(plan.id)}
+                      className="w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    >
+                      Contratar este plano
+                    </button>
+                  </div>
+                </article>
               );
             })}
           </div>

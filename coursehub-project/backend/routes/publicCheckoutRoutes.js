@@ -15,6 +15,7 @@ const {
   getCheckoutSessionStatus,
   validateCheckoutEmailToken,
   verifyCheckoutEmail,
+  confirmCheckoutEmailAutomatically,
 } = require("../services/financial/publicCheckoutSessionService");
 const { submitPublicCheckoutContract } = require("../services/financial/publicCheckoutService");
 const { setInvoicePaymentSessionCookie } = require("../utils/cookies");
@@ -34,6 +35,20 @@ router.post("/sessions", publicCheckoutSessionRateLimiter, async (req, res) => {
 
     return res.status(error.statusCode || 500).json({
       message: error.statusCode ? error.message : "Não foi possível iniciar o checkout.",
+    });
+  }
+});
+
+router.post("/sessions/:checkoutToken/verify", checkoutEmailVerificationRateLimiter, async (req, res) => {
+  try {
+    const result = await confirmCheckoutEmailAutomatically(db, req.params.checkoutToken);
+
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    console.error("Erro ao confirmar e-mail do checkout automaticamente:", error.message);
+
+    return res.status(error.statusCode || 500).json({
+      message: error.message || "Não foi possível confirmar o e-mail.",
     });
   }
 });

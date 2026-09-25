@@ -1,10 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 
 import { usePaymentPolling } from "../../../hooks/usePaymentPolling";
 import { getInvoicePayment } from "../../../services/FinancialService";
-import { getPublicInvoicePayment } from "../../../services/PublicInvoicePaymentService";
+import { getPublicInvoicePayment, requestPurchasedCourseAccess } from "../../../services/PublicInvoicePaymentService";
 
 const FETCH_BY_CHANNEL = {
   student: getInvoicePayment,
@@ -32,18 +32,43 @@ export default function CheckoutProcessing() {
 
   const fetchFn = FETCH_BY_CHANNEL[via] || getPublicInvoicePayment;
   const { payment, error } = usePaymentPolling(paymentId, fetchFn);
+  const finishedRef = useRef(false);
 
   useEffect(() => {
-    if (payment?.status && TERMINAL_STATUSES.has(payment.status)) {
+    if (!payment?.status || !TERMINAL_STATUSES.has(payment.status) || finishedRef.current) {
+      return;
+    }
+
+    finishedRef.current = true;
+
+    async function finish() {
+      let accessPath = "";
+
+      if (via === "public" && payment.status === "approved" && paymentId) {
+        try {
+          const result = await requestPurchasedCourseAccess(paymentId);
+          accessPath = result.data?.accessPath || "";
+
+          if (accessPath && invoiceId) {
+            sessionStorage.setItem(`coursehub-public-course-access:${invoiceId}`, accessPath);
+          }
+        } catch (accessError) {
+          console.error("Não foi possível abrir o acesso ao curso comprado:", accessError);
+        }
+      }
+
       navigate(`/checkout/resultado?invoiceId=${invoiceId}&status=${payment.status}&via=${via}`, {
         replace: true,
+        state: { accessPath },
       });
     }
-  }, [payment?.status, invoiceId, via, navigate]);
+
+    finish();
+  }, [payment?.status, paymentId, invoiceId, via, navigate]);
 
   return (
     <div className="mx-auto flex max-w-md flex-col items-center px-4 py-24 text-center sm:px-6">
-      <Loader2 size={36} className="animate-spin text-blue-600" aria-hidden="true" />
+      <Loader2 size={36} className="animate-spin text-slate-950" aria-hidden="true" />
 
       <h1 className="mt-6 text-xl font-bold text-gray-900">Estamos aguardando a confirmação do pagamento</h1>
 

@@ -185,7 +185,7 @@ export default function PublicCheckoutWizard() {
   if (phase === "loading") {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center px-4 py-24 text-center sm:px-6">
-        <Loader2 size={32} className="animate-spin text-blue-600" aria-hidden="true" />
+        <Loader2 size={32} className="animate-spin text-slate-950" aria-hidden="true" />
         <p className="mt-4 text-sm text-slate-500">Carregando checkout...</p>
       </div>
     );
@@ -208,8 +208,8 @@ export default function PublicCheckoutWizard() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:py-14">
       <header>
-        <p className="flex items-center gap-1.5 text-sm font-semibold text-blue-600">
-          <ShieldCheck size={16} aria-hidden="true" />
+        <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
+          <ShieldCheck size={14} aria-hidden="true" />
           Checkout seguro
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Contratar curso</h1>
@@ -221,7 +221,7 @@ export default function PublicCheckoutWizard() {
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px] lg:gap-8">
-        <div className="order-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 lg:order-1">
+        <div className="order-2 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 lg:order-1">
           {phase === "step1" && (
             <Step1CoursePlan
               course={course}

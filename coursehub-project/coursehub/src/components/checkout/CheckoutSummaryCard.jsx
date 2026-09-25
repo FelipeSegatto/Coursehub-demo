@@ -18,9 +18,7 @@ const BILLING_TYPE_LABEL = {
  */
 export default function CheckoutSummaryCard({ course, plan, className = "" }) {
   return (
-    <aside
-      className={`overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm ${className}`}
-    >
+    <aside className={`overflow-hidden rounded-2xl border border-slate-200 bg-white ${className}`}>
       <div className="aspect-[16/9] w-full overflow-hidden bg-slate-100">
         <img
           src={publicImageUrl(course?.image_url)}
@@ -33,15 +31,15 @@ export default function CheckoutSummaryCard({ course, plan, className = "" }) {
 
       <div className="space-y-4 p-5">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Resumo do pedido</p>
-          <p className="mt-1 text-sm font-semibold text-slate-950">{course?.name}</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">Resumo do pedido</p>
+          <p className="mt-2 text-base font-semibold tracking-tight text-slate-950">{course?.name}</p>
         </div>
 
         {plan ? (
           <div className="space-y-3">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold uppercase text-blue-600">
+                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
                   {BILLING_TYPE_LABEL[plan.billingType] || plan.billingType}
                 </p>
                 <p className="mt-0.5 text-sm font-semibold text-slate-950">{plan.name}</p>
@@ -49,7 +47,7 @@ export default function CheckoutSummaryCard({ course, plan, className = "" }) {
             </div>
 
             <div className="border-t border-slate-100 pt-3">
-              <p className="text-2xl font-semibold tracking-tight text-slate-950">
+              <p className="text-[1.75rem] font-semibold tracking-tight text-slate-950 tabular-nums">
                 {formatCurrency(plan.totalAmount)}
               </p>
               {plan.billingType === "monthly_plan" && plan.monthlyPaymentCount && (

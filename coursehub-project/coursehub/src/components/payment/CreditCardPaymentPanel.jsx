@@ -776,8 +776,8 @@ export default function CreditCardPaymentPanel({
         className="
           rounded-xl
           border
-          border-blue-200
-          bg-blue-50
+          border-slate-200
+          bg-slate-50
           p-4
         "
       >
@@ -786,7 +786,7 @@ export default function CreditCardPaymentPanel({
           className="
             text-sm
             font-bold
-            text-blue-900
+            text-slate-950
           "
         >
           Gateway simulado
@@ -798,7 +798,7 @@ export default function CreditCardPaymentPanel({
             mt-1
             text-sm
             leading-5
-            text-blue-700
+            text-slate-600
           "
         >
           Você pode digitar os dados
@@ -986,9 +986,9 @@ export default function CreditCardPaymentPanel({
             text-sm
             outline-none
             transition
-            focus:border-blue-500
+            focus:border-slate-950
             focus:ring-2
-            focus:ring-blue-100
+            focus:ring-slate-200
             disabled:bg-gray-100
           "
         />
@@ -1065,9 +1065,9 @@ export default function CreditCardPaymentPanel({
               text-sm
               outline-none
               transition
-              focus:border-blue-500
+              focus:border-slate-950
               focus:ring-2
-              focus:ring-blue-100
+              focus:ring-slate-200
               disabled:bg-gray-100
             "
           />
@@ -1137,9 +1137,9 @@ export default function CreditCardPaymentPanel({
               text-sm
               outline-none
               transition
-              focus:border-blue-500
+              focus:border-slate-950
               focus:ring-2
-              focus:ring-blue-100
+              focus:ring-slate-200
               disabled:bg-gray-100
             "
           />
@@ -1198,9 +1198,9 @@ export default function CreditCardPaymentPanel({
               text-sm
               outline-none
               transition
-              focus:border-blue-500
+              focus:border-slate-950
               focus:ring-2
-              focus:ring-blue-100
+              focus:ring-slate-200
               disabled:bg-gray-100
             "
           />
@@ -1257,9 +1257,9 @@ export default function CreditCardPaymentPanel({
             text-sm
             outline-none
             transition
-            focus:border-blue-500
+            focus:border-slate-950
             focus:ring-2
-            focus:ring-blue-100
+            focus:ring-slate-200
             disabled:bg-gray-100
           "
         >
@@ -1438,13 +1438,13 @@ export default function CreditCardPaymentPanel({
           items-center
           justify-center
           rounded-xl
-          bg-blue-600
+          bg-slate-950
           px-5
           text-sm
           font-bold
           text-white
           transition
-          hover:bg-blue-700
+          hover:bg-slate-800
           disabled:cursor-not-allowed
           disabled:opacity-60
         "

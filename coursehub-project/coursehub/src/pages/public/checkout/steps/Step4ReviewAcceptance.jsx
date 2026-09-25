@@ -19,7 +19,7 @@ export default function Step4ReviewAcceptance({
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Etapa 4 de 5</p>
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">Etapa 4 de 5</p>
         <h2 className="mt-1 text-xl font-semibold tracking-tight text-slate-950">Revise seus dados</h2>
       </div>
 
@@ -53,15 +53,15 @@ export default function Step4ReviewAcceptance({
           type="checkbox"
           checked={accepted}
           onChange={onToggleAccepted}
-          className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+          className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-slate-950 focus:ring-slate-950"
         />
         <span>
           Li e aceito os{" "}
-          <Link to="/termos-de-uso" target="_blank" className="font-medium text-blue-600 underline underline-offset-2">
+          <Link to="/termos-de-uso" target="_blank" className="font-medium text-slate-950 underline underline-offset-2">
             Termos de Uso
           </Link>{" "}
           e a{" "}
-          <Link to="/politica-de-privacidade" target="_blank" className="font-medium text-blue-600 underline underline-offset-2">
+          <Link to="/politica-de-privacidade" target="_blank" className="font-medium text-slate-950 underline underline-offset-2">
             Política de Privacidade
           </Link>
           .
@@ -80,7 +80,7 @@ export default function Step4ReviewAcceptance({
           type="button"
           onClick={onNext}
           disabled={!accepted}
-          className="h-12 flex-[2] rounded-xl bg-blue-600 px-5 text-[15px] font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-600/20 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="h-12 flex-[2] rounded-xl bg-slate-950 px-5 text-[15px] font-semibold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-950/15 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           Continuar para pagamento
         </button>

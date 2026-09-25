@@ -137,7 +137,7 @@ export default function StudentCoursePurchase() {
   if (loading) {
     return (
       <div className="flex flex-col items-center px-4 py-24 text-center">
-        <Loader2 size={32} className="animate-spin text-blue-600" aria-hidden="true" />
+        <Loader2 size={32} className="animate-spin text-slate-950" aria-hidden="true" />
         <p className="mt-4 text-sm text-slate-500">Carregando checkout...</p>
       </div>
     );
@@ -155,14 +155,14 @@ export default function StudentCoursePurchase() {
     <main className="mx-auto max-w-5xl pb-10">
       <Link
         to={`/courses/${courseId}`}
-        className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700"
+        className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-950"
       >
         <ArrowLeft size={16} /> Voltar para o curso
       </Link>
 
       <header>
-        <p className="flex items-center gap-1.5 text-sm font-semibold text-blue-600">
-          <ShieldCheck size={16} aria-hidden="true" />
+        <p className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">
+          <ShieldCheck size={14} aria-hidden="true" />
           Checkout seguro
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Contratar {course.name}</h1>
@@ -182,13 +182,13 @@ export default function StudentCoursePurchase() {
                   onClick={() => setSelectedPlanId(plan.id)}
                   className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3.5 text-left text-sm transition ${
                     isSelected
-                      ? "border-blue-600 bg-blue-50/60 ring-1 ring-blue-600"
+                      ? "border-slate-950 bg-slate-50 ring-1 ring-slate-950"
                       : "border-slate-200 bg-white hover:border-slate-300"
                   }`}
                 >
                   <span
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
-                      isSelected ? "border-blue-600 bg-blue-600" : "border-slate-300 bg-white"
+                      isSelected ? "border-slate-950 bg-slate-950" : "border-slate-300 bg-white"
                     }`}
                   >
                     {isSelected && <Check size={12} className="text-white" strokeWidth={3} aria-hidden="true" />}
@@ -204,21 +204,21 @@ export default function StudentCoursePurchase() {
 
       {selectedPlan && (
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px] lg:gap-8">
-          <div className="order-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8 lg:order-1">
+          <div className="order-2 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 lg:order-1">
             <label className="flex items-start gap-2.5 rounded-xl border border-slate-200 px-4 py-3.5 text-sm text-slate-600">
               <input
                 type="checkbox"
                 checked={accepted}
                 onChange={(event) => setAccepted(event.target.checked)}
-                className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-slate-950 focus:ring-slate-950"
               />
               <span>
                 Li e aceito os{" "}
-                <Link to="/termos-de-uso" target="_blank" className="font-medium text-blue-600 underline underline-offset-2">
+                <Link to="/termos-de-uso" target="_blank" className="font-medium text-slate-950 underline underline-offset-2">
                   Termos de Uso
                 </Link>{" "}
                 e a{" "}
-                <Link to="/politica-de-privacidade" target="_blank" className="font-medium text-blue-600 underline underline-offset-2">
+                <Link to="/politica-de-privacidade" target="_blank" className="font-medium text-slate-950 underline underline-offset-2">
                   Política de Privacidade
                 </Link>
                 .

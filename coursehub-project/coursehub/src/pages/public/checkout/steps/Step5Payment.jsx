@@ -19,7 +19,7 @@ export default function Step5Payment({
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Etapa 5 de 5</p>
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">Etapa 5 de 5</p>
         <h2 className="mt-1 text-xl font-semibold tracking-tight text-slate-950">Forma de pagamento</h2>
       </div>
 

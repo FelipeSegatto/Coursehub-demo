@@ -68,11 +68,11 @@ export default function VerifyCheckoutEmail() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16 sm:px-6">
-      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-950">
         <MailCheck size={21} aria-hidden="true" />
       </div>
 
-      <p className="mt-6 text-sm font-semibold text-blue-600">Confirmação de e-mail</p>
+      <p className="mt-6 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-500">Confirmação de e-mail</p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
         Confirme seu e-mail
       </h1>

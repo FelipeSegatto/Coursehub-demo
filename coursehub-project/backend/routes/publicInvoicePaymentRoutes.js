@@ -33,6 +33,7 @@ const {
   startInvoicePayment,
   getInvoicePaymentByAccessContext,
 } = require("../services/financial/invoicePaymentService");
+const { openPurchasedCourseAccess } = require("../services/financial/purchasedCourseAccessService");
 const {
   setInvoicePaymentSessionCookie,
 } = require("../utils/cookies");
@@ -297,6 +298,34 @@ router.get(
     }
   }
 );
+
+/**
+ * POST /api/public/invoice-payment/payments/:paymentId/course-access
+ * Checkout público da demo: com o pagamento aprovado e o cookie da
+ * fatura, devolve o caminho para ativar a conta e entrar no curso.
+ */
+router.post("/payments/:paymentId/course-access", requireInvoicePaymentSession, async (req, res) => {
+  try {
+    const paymentId = Number(req.params.paymentId);
+
+    if (!Number.isInteger(paymentId) || paymentId <= 0) {
+      return res.status(400).json({ message: "Identificador de pagamento inválido." });
+    }
+
+    const result = await openPurchasedCourseAccess(db, {
+      paymentId,
+      accessContext: req.invoicePaymentSession,
+    });
+
+    return res.status(200).json({ data: result });
+  } catch (error) {
+    console.error("Erro ao abrir acesso ao curso comprado:", error.message);
+
+    return res.status(error.statusCode || 500).json({
+      message: error.message || "Não foi possível abrir o acesso ao curso.",
+    });
+  }
+});
 
 /**
  * POST /api/public/invoice-payment/request-link

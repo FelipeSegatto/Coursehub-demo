@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import BirthDateFields from "../../../../components/forms/BirthDateFields";
+
 function TextField({ label, value, onChange, type = "text", placeholder, required = true }) {
   return (
     <div>
@@ -10,7 +12,7 @@ function TextField({ label, value, onChange, type = "text", placeholder, require
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         required={required}
-        className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-[15px] text-slate-950 outline-none transition placeholder:text-slate-400 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+        className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-[15px] text-slate-950 outline-none transition placeholder:text-slate-400 hover:border-slate-400 focus:border-slate-950 focus:ring-4 focus:ring-slate-950/10"
       />
     </div>
   );
@@ -57,7 +59,7 @@ export default function Step3ContractingPartyData({
   return (
     <div className="space-y-7">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Etapa 3 de 5</p>
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">Etapa 3 de 5</p>
         <h2 className="mt-1 text-xl font-semibold tracking-tight text-slate-950">
           {recipientMode === "self" ? "Seus dados" : "Dados do aluno"}
         </h2>
@@ -71,11 +73,9 @@ export default function Step3ContractingPartyData({
           value={studentCandidate.email || ""}
           onChange={(v) => updateStudent("email", v)}
         />
-        <TextField
-          label="Data de nascimento"
-          type="date"
+        <BirthDateFields
           value={studentCandidate.birthDate || ""}
-          onChange={(v) => updateStudent("birthDate", v)}
+          onChange={(birthDate) => updateStudent("birthDate", birthDate)}
         />
         <TextField label="CPF" value={studentCandidate.cpf || ""} onChange={(v) => updateStudent("cpf", v)} placeholder="000.000.000-00" />
         <TextField label="Telefone" required={false} value={studentCandidate.phone || ""} onChange={(v) => updateStudent("phone", v)} />
@@ -98,7 +98,7 @@ export default function Step3ContractingPartyData({
                   }}
                   className={`flex-1 rounded-xl border px-4 py-2.5 text-sm font-medium transition ${
                     partyType === type
-                      ? "border-blue-600 bg-blue-50 text-blue-700"
+                      ? "border-slate-950 bg-slate-50 text-slate-950"
                       : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
                   }`}
                 >
@@ -137,7 +137,7 @@ export default function Step3ContractingPartyData({
             <select
               value={contractingPartyData?.relationshipType || ""}
               onChange={(event) => updateParty("relationshipType", event.target.value)}
-              className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-[15px] text-slate-950 outline-none transition hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
+              className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3.5 text-[15px] text-slate-950 outline-none transition hover:border-slate-400 focus:border-slate-950 focus:ring-4 focus:ring-slate-950/10"
             >
               <option value="">Selecione</option>
               <option value="parent">Pai/Mãe</option>
@@ -161,7 +161,7 @@ export default function Step3ContractingPartyData({
           type="button"
           onClick={onNext}
           disabled={!studentReady || !partyReady}
-          className="h-12 flex-[2] rounded-xl bg-blue-600 px-5 text-[15px] font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-600/20 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="h-12 flex-[2] rounded-xl bg-slate-950 px-5 text-[15px] font-semibold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-950/15 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           Continuar
         </button>

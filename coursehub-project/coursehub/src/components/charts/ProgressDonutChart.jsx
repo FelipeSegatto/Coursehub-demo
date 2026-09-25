@@ -1,4 +1,5 @@
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { useState } from "react";
+import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 
 /**
  * Gráfico de rosca de progresso, extraído de StudentProgress.jsx pra
@@ -13,22 +14,37 @@ function normalizeNumber(value, fallback = 0) {
   return Number.isFinite(number) ? number : fallback;
 }
 
-function ChartLegend({ items, colors, format }) {
+function ChartLegend({ items, colors, format, activeIndex, onActivate, onDeactivate }) {
   return (
-    <div className="mt-5 space-y-2">
-      {items.map((item, index) => (
-        <div key={item.name} className="flex items-center justify-between gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <span
-              className="h-2.5 w-2.5 rounded-full"
-              style={{ backgroundColor: colors[index % colors.length] }}
-            />
-            <span className="text-gray-600">{item.name}</span>
-          </div>
+    <div className="mt-5 space-y-1">
+      {items.map((item, index) => {
+        const active = activeIndex === index;
 
-          <span className="font-semibold text-gray-900">{format(item.value)}</span>
-        </div>
-      ))}
+        return (
+          <div
+            key={item.name}
+            className={`flex items-center justify-between gap-4 rounded-lg px-2 py-1.5 text-sm ${
+              active ? "bg-gray-50" : ""
+            }`}
+            onMouseEnter={() => onActivate(index)}
+            onMouseLeave={onDeactivate}
+          >
+            <div className="flex min-w-0 items-center gap-2">
+              <span
+                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: colors[index % colors.length] }}
+              />
+              <span className={active ? "font-medium text-gray-900" : "text-gray-600"}>
+                {item.name}
+              </span>
+            </div>
+
+            <span className="shrink-0 font-semibold tabular-nums text-gray-900">
+              {format(item.value)}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -54,6 +70,7 @@ export default function ProgressDonutChart({
 }) {
   const format = formatValue || ((value) => value);
   const total = data.reduce((sum, item) => sum + normalizeNumber(item.value), 0);
+  const [activeIndex, setActiveIndex] = useState(null);
 
   // Quando não existem dados, cria uma fatia cinza só pra manter a
   // estrutura visual do gráfico (nunca um gráfico vazio quebrado).
@@ -78,13 +95,17 @@ export default function ProgressDonutChart({
               outerRadius={88}
               paddingAngle={3}
               stroke="none"
+              onMouseEnter={(_, index) => setActiveIndex(index)}
+              onMouseLeave={() => setActiveIndex(null)}
             >
               {chartData.map((item, index) => (
-                <Cell key={`${item.name}-${index}`} fill={chartColors[index % chartColors.length]} />
+                <Cell
+                  key={`${item.name}-${index}`}
+                  fill={chartColors[index % chartColors.length]}
+                  opacity={activeIndex == null || activeIndex === index ? 1 : 0.35}
+                />
               ))}
             </Pie>
-
-            <Tooltip formatter={(value, name) => [total > 0 ? format(value) : "—", name]} />
           </PieChart>
         </ResponsiveContainer>
 
@@ -94,7 +115,14 @@ export default function ProgressDonutChart({
         </div>
       </div>
 
-      <ChartLegend items={data} colors={colors} format={format} />
+      <ChartLegend
+        items={data}
+        colors={colors}
+        format={format}
+        activeIndex={total > 0 ? activeIndex : null}
+        onActivate={setActiveIndex}
+        onDeactivate={() => setActiveIndex(null)}
+      />
     </article>
   );
 }

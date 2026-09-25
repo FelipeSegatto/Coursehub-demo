@@ -12,6 +12,7 @@ const {
 } = require("../../repositories/publicCheckoutSessions");
 const { loadValidatedPlan } = require("./contractCreationService");
 const { createNotificationEvent } = require("../notifications/notificationService");
+const { allowsSimulatedPayments } = require("../paymentGateway/demoGatewayPolicy");
 
 function createServiceError(message, statusCode) {
   const error = new Error(message);
@@ -130,10 +131,40 @@ async function verifyCheckoutEmail(db, rawToken) {
   return { message: "E-mail confirmado. Você já pode continuar a contratação." };
 }
 
+/**
+ * Confirma o e-mail da sessão de checkout sem o link da outra aba.
+ * Só existe quando o gateway simulado da demo está liberado: um
+ * deploy real continua exigindo o link enviado por e-mail.
+ */
+async function confirmCheckoutEmailAutomatically(db, checkoutToken) {
+  if (!allowsSimulatedPayments()) {
+    throw createServiceError("Confirme o e-mail pelo link enviado para continuar.", 403);
+  }
+
+  const session = await findSessionByToken(db.promise(), checkoutToken);
+
+  if (!session) {
+    throw createServiceError("Sessão de checkout inválida ou expirada.", 404);
+  }
+
+  if (session.status === "verified" || session.email_verified_at) {
+    return { status: "verified" };
+  }
+
+  if (session.status !== "pending_verification") {
+    throw createServiceError("Esta sessão de checkout não pode mais confirmar o e-mail.", 409);
+  }
+
+  await markEmailVerified(db.promise(), session.id);
+
+  return { status: "verified" };
+}
+
 module.exports = {
   createServiceError,
   startPublicCheckoutSession,
   getCheckoutSessionStatus,
   validateCheckoutEmailToken,
   verifyCheckoutEmail,
+  confirmCheckoutEmailAutomatically,
 };

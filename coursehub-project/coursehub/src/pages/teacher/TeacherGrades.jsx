@@ -79,11 +79,18 @@ export default function TeacherGrades() {
     };
   }, [usuarioLogado?.id]);
 
-  const activitiesForClass = classId
-    ? activities.filter(
-        (activity) =>
-          activity.class_id === null || Number(activity.class_id) === Number(classId)
-      )
+  const selectedClass = classes.find((classItem) => String(classItem.id) === String(classId));
+  const selectedCourseId = selectedClass?.courseId ?? selectedClass?.course_id;
+
+  const activitiesForClass = selectedClass
+    ? activities.filter((activity) => {
+        const activityCourseId = activity.course_id ?? activity.courseId;
+        const sameCourse = Number(activityCourseId) === Number(selectedCourseId);
+        const appliesToClass =
+          activity.class_id === null || Number(activity.class_id) === Number(classId);
+
+        return sameCourse && appliesToClass;
+      })
     : [];
 
   function handleClassChange(event) {

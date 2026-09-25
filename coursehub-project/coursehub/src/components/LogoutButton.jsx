@@ -1,16 +1,10 @@
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
 export default function LogoutButton() {
-  const navigate = useNavigate();
   const { logout } = useAuth();
 
   async function handleLogout() {
-    await logout();
-
-    navigate("/", {
-      replace: true,
-    });
+    await logout({ goHome: true });
   }
 
   return (

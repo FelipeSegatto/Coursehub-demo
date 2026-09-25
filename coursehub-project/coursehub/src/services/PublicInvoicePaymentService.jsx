@@ -26,6 +26,13 @@ export async function getPublicInvoicePayment(paymentId) {
   return apiFetch(`${BASE}/payments/${paymentId}`);
 }
 
+/** Caminho para ativar a conta e entrar no curso comprado. Exige o cookie da fatura. */
+export async function requestPurchasedCourseAccess(paymentId) {
+  return apiFetch(`${BASE}/payments/${paymentId}/course-access`, {
+    method: "POST",
+  });
+}
+
 /** "Não encontrou seu link?" -- sempre resolve com a mesma mensagem genérica. */
 export async function requestInvoicePaymentLinkByEmail(email) {
   return apiFetch(`${BASE}/request-link`, {

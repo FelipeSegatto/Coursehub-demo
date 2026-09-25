@@ -5,7 +5,7 @@ export default function Step2Recipient({ recipientMode, onSelect, onNext, onBack
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Etapa 2 de 5</p>
+        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">Etapa 2 de 5</p>
         <h2 className="mt-1 text-xl font-semibold tracking-tight text-slate-950">Para quem é o curso?</h2>
       </div>
 
@@ -15,13 +15,13 @@ export default function Step2Recipient({ recipientMode, onSelect, onNext, onBack
           onClick={() => onSelect("self")}
           className={`flex w-full items-start gap-3 rounded-xl border px-4 py-4 text-left transition ${
             recipientMode === "self"
-              ? "border-blue-600 bg-blue-50/60 ring-1 ring-blue-600"
+              ? "border-slate-950 bg-slate-50 ring-1 ring-slate-950"
               : "border-slate-200 bg-white hover:border-slate-300"
           }`}
         >
           <span
             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-              recipientMode === "self" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
+              recipientMode === "self" ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-500"
             }`}
           >
             <User size={18} aria-hidden="true" />
@@ -37,13 +37,13 @@ export default function Step2Recipient({ recipientMode, onSelect, onNext, onBack
           onClick={() => onSelect("other")}
           className={`flex w-full items-start gap-3 rounded-xl border px-4 py-4 text-left transition ${
             recipientMode === "other"
-              ? "border-blue-600 bg-blue-50/60 ring-1 ring-blue-600"
+              ? "border-slate-950 bg-slate-50 ring-1 ring-slate-950"
               : "border-slate-200 bg-white hover:border-slate-300"
           }`}
         >
           <span
             className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-              recipientMode === "other" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-500"
+              recipientMode === "other" ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-500"
             }`}
           >
             <Users size={18} aria-hidden="true" />
@@ -69,7 +69,7 @@ export default function Step2Recipient({ recipientMode, onSelect, onNext, onBack
           type="button"
           onClick={onNext}
           disabled={!recipientMode}
-          className="h-12 flex-[2] rounded-xl bg-blue-600 px-5 text-[15px] font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-600/20 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className="h-12 flex-[2] rounded-xl bg-slate-950 px-5 text-[15px] font-semibold text-white transition hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-950/15 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           Continuar
         </button>

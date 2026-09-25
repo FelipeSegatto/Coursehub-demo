@@ -13,6 +13,12 @@ export async function getCheckoutSession(checkoutToken) {
   return apiFetch(`${BASE}/sessions/${checkoutToken}`);
 }
 
+export async function confirmCheckoutEmailAutomatically(checkoutToken) {
+  return apiFetch(`${BASE}/sessions/${checkoutToken}/verify`, {
+    method: "POST",
+  });
+}
+
 export async function validateCheckoutEmailToken(token) {
   return apiFetch(`${BASE}/verify-email/validate?token=${encodeURIComponent(token || "")}`);
 }

@@ -35,14 +35,14 @@ export default function PaymentMethodSelector({ acceptedMethods, selected, onSel
           type="button"
           disabled={disabled}
           onClick={() => onSelect(key)}
-          className={`relative flex flex-col items-center gap-2 rounded-xl border px-4 py-4 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`relative flex flex-col items-center gap-2 rounded-xl border px-4 py-5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${
             selected === key
-              ? "border-blue-600 bg-blue-50/60 text-blue-700 ring-1 ring-blue-600"
-              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+              ? "border-slate-950 bg-slate-50 text-slate-950 ring-1 ring-slate-950"
+              : "border-slate-200 bg-white text-slate-600 hover:border-slate-400"
           }`}
         >
           {selected === key && (
-            <span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-white">
+            <span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-slate-950 text-white">
               <Check size={10} strokeWidth={3} aria-hidden="true" />
             </span>
           )}

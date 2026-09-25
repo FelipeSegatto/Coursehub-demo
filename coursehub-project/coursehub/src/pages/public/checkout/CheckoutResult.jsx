@@ -1,5 +1,6 @@
 import {
   useSearchParams,
+  useLocation,
   Link,
 } from "react-router-dom";
 
@@ -104,6 +105,8 @@ export default function CheckoutResult() {
   const [searchParams] =
     useSearchParams();
 
+  const location = useLocation();
+
 
   /**
    * Estado final do pagamento.
@@ -124,6 +127,21 @@ export default function CheckoutResult() {
   const via =
     searchParams.get("via") ||
     "public";
+
+  const invoiceId =
+    searchParams.get("invoiceId");
+
+  const storedAccessPath =
+    invoiceId
+      ? sessionStorage.getItem(
+          `coursehub-public-course-access:${invoiceId}`
+        )
+      : "";
+
+  const accessPath =
+    location.state?.accessPath ||
+    storedAccessPath ||
+    "";
 
 
   /**
@@ -147,17 +165,27 @@ export default function CheckoutResult() {
   /**
    * Caminho correto depois do sucesso.
    */
+  const opensPurchasedCourse =
+    via === "public" &&
+    status === "approved" &&
+    Boolean(accessPath);
+
+
   const successPath =
-    SUCCESS_PATH_BY_CHANNEL[via] ||
-    "/";
+    opensPurchasedCourse
+      ? accessPath
+      : SUCCESS_PATH_BY_CHANNEL[via] ||
+        "/";
 
 
   /**
    * Texto correto do botão.
    */
   const successLabel =
-    SUCCESS_LABEL_BY_CHANNEL[via] ||
-    "Voltar ao início";
+    opensPurchasedCourse
+      ? "Acessar o curso"
+      : SUCCESS_LABEL_BY_CHANNEL[via] ||
+        "Voltar ao início";
 
 
   /**
@@ -267,13 +295,13 @@ export default function CheckoutResult() {
             items-center
             justify-center
             rounded-xl
-            bg-blue-600
+            bg-slate-950
             px-6
             text-sm
             font-semibold
             text-white
             transition
-            hover:bg-blue-700
+            hover:bg-slate-800
           "
         >
           Tentar pagamento novamente
@@ -353,7 +381,27 @@ export default function CheckoutResult() {
                 de aluno.
               </>
             )
-            : (
+            : opensPurchasedCourse ? (
+              accessPath.startsWith("/ativar-conta") ? (
+                <>
+                  Seu pagamento foi
+                  confirmado e a matrícula
+                  no curso já está liberada.
+
+                  Defina uma senha para
+                  entrar.
+                </>
+              ) : (
+                <>
+                  Seu pagamento foi
+                  confirmado.
+
+                  Entre com o e-mail usado
+                  na compra para abrir o
+                  curso.
+                </>
+              )
+            ) : (
               <>
                 Recebemos a confirmação
                 do seu pagamento.
@@ -377,16 +425,16 @@ export default function CheckoutResult() {
             justify-center
             gap-2
             rounded-xl
-            bg-blue-600
+            bg-slate-950
             px-6
             text-sm
             font-semibold
             text-white
             transition
-            hover:bg-blue-700
+            hover:bg-slate-800
           "
         >
-          {isStudentChannel ? (
+          {isStudentChannel || opensPurchasedCourse ? (
             <LayoutDashboard
               size={17}
               aria-hidden="true"
@@ -409,9 +457,9 @@ export default function CheckoutResult() {
               mt-3
               text-sm
               font-semibold
-              text-blue-600
+              text-slate-950
               transition
-              hover:text-blue-700
+              hover:text-slate-700
               hover:underline
             "
           >
@@ -497,13 +545,13 @@ export default function CheckoutResult() {
           items-center
           justify-center
           rounded-xl
-          bg-blue-600
+          bg-slate-950
           px-6
           text-sm
           font-semibold
           text-white
           transition
-          hover:bg-blue-700
+          hover:bg-slate-800
         "
       >
         Tentar novamente
