@@ -10,15 +10,11 @@ import { Link } from "react-router-dom";
 const slides = [
   {
     id: 1,
-    image: "/images/coursehub-hero-green.webp",
-    alt: "Sala de aula moderna com mesas, cadeiras e quadro ao fundo",
+    image: "/images/coursehub-new-1.webp",
+    alt: "Nova imagem do CourseHub no primeiro slide",
     href: "/courses",
-
-    /*
-     * A imagem tem um ponto focal central muito forte.
-     * object-center funciona melhor aqui.
-     */
-    objectPosition: "object-center",
+    imageScale: "h-full w-full",
+    objectPosition: "object-[center_89%]",
 
     eyebrow: "CourseHub",
 
@@ -50,8 +46,8 @@ const slides = [
 
   {
     id: 2,
-    image: "/images/coursehub-hero-yellow.webp",
-    alt: "Materiais de estudo e planejamento sobre fundo amarelo",
+    image: "/images/coursehub-new-2.webp",
+    alt: "Corredor de escola com armários coloridos",
     href: "/courses",
     objectPosition: "object-center",
 
@@ -73,10 +69,10 @@ const slides = [
 
   {
     id: 3,
-    image: "/images/coursehub-hero-blue.webp",
-    alt: "Materiais escolares sobre fundo azul",
+    image: "/images/coursehub-hero-green.webp",
+    alt: "Sala de aula moderna com mesas, cadeiras e quadro ao fundo",
     href: "/courses",
-    objectPosition: "object-right",
+    objectPosition: "object-center",
 
     eyebrow: "CourseHub",
 
@@ -133,7 +129,7 @@ export default function HeroCarousel() {
       aria-label="Destaques do CourseHub"
       className="bg-white px-6 pt-6 lg:px-8 lg:pt-8"
     >
-      <div className="relative mx-auto min-h-[430px] max-w-7xl overflow-hidden rounded-[2rem] bg-slate-950 lg:min-h-[480px]">
+      <div className="relative mx-auto min-h-[550px] max-w-7xl overflow-hidden rounded-[2rem] bg-slate-950 lg:min-h-[610px]">
         {/* SLIDES */}
         {slides.map((slide, index) => {
           const isActive =
@@ -160,12 +156,11 @@ export default function HeroCarousel() {
                   absolute
                   left-1/2
                   top-1/2
-                  h-[125%]
-                  w-[125%]
+                  ${slide.imageScale || "h-[125%] w-[125%]"}
                   max-w-none
                   -translate-x-1/2
                   -translate-y-1/2
-                  object-cover
+                  ${slide.objectFit || "object-cover"}
                   ${slide.objectPosition}
                 `}
               />
@@ -177,7 +172,7 @@ export default function HeroCarousel() {
 
               {/* CONTEÚDO */}
               <div
-                className={`relative flex min-h-[430px] h-full px-7 py-14 md:px-10 lg:min-h-[480px] lg:px-14 ${slide.contentPosition}`}
+                className={`relative flex min-h-[550px] h-full px-7 py-14 md:px-10 lg:min-h-[610px] lg:px-14 ${slide.contentPosition}`}
               >
                 <div
                   className={`${slide.contentWidth} ${slide.textPosition}`}

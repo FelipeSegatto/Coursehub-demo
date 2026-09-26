@@ -1,49 +1,54 @@
 <svg
   xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 62 52"
+  viewBox="0 0 64 64"
   fill="none"
 >
-  <!-- Topo -->
-  <path
-    d="M30 4L58 18L30 32L2 18L30 4Z"
-    fill="#0F172A"
-    stroke="#FFFFFF"
-    stroke-width="1.5"
-    stroke-linejoin="round"
-  />
-
-  <!-- Corpo -->
-  <path
-    d="M12 23V39C12 39 19 47 30 47C41 47 48 39 48 39V23L30 32L12 23Z"
-    fill="#0F172A"
-    stroke="#FFFFFF"
-    stroke-width="1.5"
-    stroke-linejoin="round"
-  />
-
-  <!-- Detalhe azul -->
-  <path
-    d="M17 28V36C20.5 39.5 25 41 30 41C35 41 39.5 39.5 43 36V28"
-    stroke="#3B82F6"
-    stroke-width="3"
-    stroke-linecap="round"
-  />
-
-  <!-- Cordão -->
-  <path
-    d="M58 18V36"
-    stroke="#3B82F6"
-    stroke-width="3"
-    stroke-linecap="round"
-  />
-
-  <!-- Ponta -->
+  <!-- Base circular -->
   <circle
-    cx="58"
-    cy="40"
-    r="4"
-    fill="#3B82F6"
-    stroke="#FFFFFF"
-    stroke-width="1"
+    cx="32"
+    cy="32"
+    r="30"
+    fill="#FFFFFF"
+    stroke="#0F172A"
+    stroke-width="2"
   />
+
+  <!-- Chapéu -->
+  <g transform="translate(7 10) scale(0.84)">
+    <!-- Topo -->
+    <path
+      d="M30 4L58 18L30 32L2 18L30 4Z"
+      fill="#0F172A"
+    />
+
+    <!-- Corpo -->
+    <path
+      d="M12 23V39C12 39 19 47 30 47C41 47 48 39 48 39V23L30 32L12 23Z"
+      fill="#0F172A"
+    />
+
+    <!-- Detalhe azul -->
+    <path
+      d="M17 28V36C20.5 39.5 25 41 30 41C35 41 39.5 39.5 43 36V28"
+      stroke="#3B82F6"
+      stroke-width="3"
+      stroke-linecap="round"
+    />
+
+    <!-- Cordão -->
+    <path
+      d="M58 18V36"
+      stroke="#0F172A"
+      stroke-width="3"
+      stroke-linecap="round"
+    />
+
+    <!-- Ponta -->
+    <circle
+      cx="58"
+      cy="40"
+      r="4"
+      fill="#3B82F6"
+    />
+  </g>
 </svg>

@@ -468,28 +468,28 @@ export default function HomePage() {
 
       <section className="bg-slate-50">
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8 lg:py-24">
-          <div className="grid items-center gap-14 lg:grid-cols-2">
+          <div className="grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
                 Uma jornada mais clara
               </p>
 
               <h2 className="mt-4 max-w-xl text-3xl font-semibold tracking-tight text-slate-950 md:text-4xl">
-                Do primeiro conteúdo à conclusão do curso
+                Do primeiro dia até a conclusão
               </h2>
 
               <p className="mt-5 max-w-xl text-base leading-7 text-slate-600">
-                Cada etapa da formação permanece organizada para que você
-                saiba o que estudar, acompanhe seus resultados e continue
-                avançando.
+                A formação fica no mesmo lugar o tempo todo. Você retoma de
+                onde parou, vê o que já concluiu e sabe o que ainda falta
+                para fechar o curso.
               </p>
 
               <div className="mt-8 space-y-4">
                 {[
-                  "Acesse seus cursos matriculados.",
-                  "Acompanhe conteúdos e progresso.",
-                  "Realize atividades e avaliações.",
-                  "Consulte pagamentos e informações do contrato.",
+                  "Cursos e conteúdos reunidos na matrícula",
+                  "Prazos, atividades e avaliações no mesmo caminho",
+                  "Progresso visível até o último conteúdo",
+                  "Pagamentos e documentos ao lado dos estudos",
                 ].map((item) => (
                   <div
                     key={item}
@@ -508,71 +508,13 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="rounded-[1.5rem] bg-slate-950 p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-blue-300">
-                      Seu progresso
-                    </p>
-
-                    <p className="mt-2 text-xl font-semibold text-white">
-                      Desenvolvimento Front-end
-                    </p>
-                  </div>
-
-                  <div className="rounded-full bg-blue-500/15 px-3 py-1.5 text-xs font-semibold text-blue-300">
-                    Em andamento
-                  </div>
-                </div>
-
-                <div className="mt-8">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-400">
-                      Progresso do curso
-                    </span>
-
-                    <span className="font-medium text-white">
-                      68%
-                    </span>
-                  </div>
-
-                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
-                    <div className="h-full w-[68%] rounded-full bg-blue-500" />
-                  </div>
-                </div>
-
-                <div className="mt-8 space-y-3">
-                  {[
-                    {
-                      title: "Fundamentos de React",
-                      status: "Concluído",
-                    },
-                    {
-                      title: "Componentes e propriedades",
-                      status: "Concluído",
-                    },
-                    {
-                      title: "Gerenciamento de estado",
-                      status: "Em andamento",
-                    },
-                  ].map((content) => (
-                    <div
-                      key={content.title}
-                      className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3"
-                    >
-                      <p className="text-sm font-medium text-white">
-                        {content.title}
-                      </p>
-
-                      <p className="text-xs text-slate-400">
-                        {content.status}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <img
+              src="/images/coursehub-new-3.webp"
+              alt="Fachada de uma escola com relógio, janelas e céu azul"
+              loading="lazy"
+              decoding="async"
+              className="aspect-[3/2] w-full rounded-[2rem] object-contain"
+            />
           </div>
         </div>
       </section>
