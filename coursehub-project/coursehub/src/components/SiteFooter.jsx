@@ -11,7 +11,6 @@ const PLATFORM_LINKS = [
 const LEGAL_LINKS = [
   { to: "/termos-de-uso", label: "Termos de uso" },
   { to: "/politica-de-privacidade", label: "Privacidade" },
-  { to: "/documentos/verificar", label: "Verificar documento" },
 ];
 
 function FooterLink({ to, children }) {
