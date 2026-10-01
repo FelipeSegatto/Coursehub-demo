@@ -67,5 +67,8 @@ export const DEMO_STEPS = [
   },
 ];
 
+export const DEMO_RESET_NOTE =
+  "Uma hora depois do último login, o banco volta sozinho ao começo da jornada. Sair da conta não restaura, e atualizar a página não empurra o prazo. Se outra pessoa entra antes da hora acabar, a contagem recomeça. Pix, notas, chats e usuários criados na visita somem; Marina, Pedro, Junior e Larissa voltam como no roteiro.";
+
 export const DEMO_EXPLORE_NOTE =
   "O resto da plataforma é livre. Só não apague curso, não cancele contrato pago e não tranque matrícula: isso quebra a história da demo, não o sistema.";
