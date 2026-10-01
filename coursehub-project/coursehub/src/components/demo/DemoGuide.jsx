@@ -4,12 +4,19 @@ import {
   Check,
   Compass,
   Copy,
+  RotateCcw,
   GraduationCap,
   QrCode,
   Sparkles,
   X,
 } from "lucide-react";
-import { DEMO_ACCOUNTS, DEMO_EXPLORE_NOTE, DEMO_PASSWORD, DEMO_STEPS } from "../../constants/demoGuide";
+import {
+  DEMO_ACCOUNTS,
+  DEMO_EXPLORE_NOTE,
+  DEMO_PASSWORD,
+  DEMO_RESET_NOTE,
+  DEMO_STEPS,
+} from "../../constants/demoGuide";
 
 const STORAGE_KEY = "coursehub.demoGuide.dismissed";
 
@@ -269,6 +276,11 @@ export default function DemoGuide({ variant = "floating", onUseAccount }) {
               </section>
 
               <p className="mt-8 flex gap-2.5 text-xs leading-6 text-slate-500">
+                <RotateCcw size={14} className="mt-0.5 shrink-0 text-slate-400" aria-hidden="true" />
+                {DEMO_RESET_NOTE}
+              </p>
+
+              <p className="mt-4 flex gap-2.5 text-xs leading-6 text-slate-500">
                 <Compass size={14} className="mt-0.5 shrink-0 text-slate-400" aria-hidden="true" />
                 {DEMO_EXPLORE_NOTE}
               </p>
