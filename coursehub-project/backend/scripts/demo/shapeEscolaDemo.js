@@ -632,21 +632,6 @@ async function main() {
       );
     }
 
-    const permissionKeys = [
-      "chat.supervise_teacher_support",
-      "chat.supervise_administrative_support",
-      "chat.supervise_staff_support",
-      "chat.audit_access",
-    ];
-
-    for (const permissionKey of permissionKeys) {
-      await conn.query(
-        `INSERT IGNORE INTO admin_permissions (user_id, permission_key, granted_by_user_id, granted_at)
-         VALUES (?, ?, ?, NOW())`,
-        [adminUserId, permissionKey, adminUserId]
-      );
-    }
-
     await conn.commit();
 
     console.log(`

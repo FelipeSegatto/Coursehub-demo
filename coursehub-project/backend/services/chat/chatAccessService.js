@@ -1,38 +1,24 @@
 const { createServiceError } = require("./chatParticipantService");
-const { hasPermission } = require("../admin/adminPermissionService");
 
 const ALLOWED_ACCESS_REASONS = ["report_review", "support", "academic_audit", "financial_audit", "safety", "other"];
+
+const SUPERVISION_TYPES = ["teacher_support", "academic_peer"];
 
 const DEFAULT_LIMIT = 30;
 const MAX_LIMIT = 100;
 
 /**
- * "Chat não é criptografado ponta a ponta; a instituição pode acessar
- * para suporte/segurança/auditoria, mas todo acesso extraordinário é
- * registrado" -- this is that gate. chat.audit_access is a global
- * override (any modality); the per-modality supervise_* keys are
- * narrower. A conversation type with no dedicated supervise key
- * (academic_peer -- students talking to each other has no "staff
- * side" to supervise routinely) is only reachable via chat.audit_access.
+ * Extraordinary read is an admin action, not a grant between admins.
+ * Every active admin can open a conversation they are not part of.
+ * Teacher and student stay limited to their own participation.
  */
-const SUPERVISION_PERMISSION_BY_TYPE = {
-  teacher_support: "chat.supervise_teacher_support",
-  administrative_support: "chat.supervise_administrative_support",
-  staff_support: "chat.supervise_staff_support",
-};
+async function canSuperviseConversation(runner, { adminUserId }) {
+  const [rows] = await runner.query(
+    `SELECT id FROM users WHERE id = ? AND role = 'admin' AND status = 'active' LIMIT 1`,
+    [adminUserId]
+  );
 
-async function canSuperviseConversation(runner, { adminUserId, conversationType }) {
-  if (await hasPermission(runner, { userId: adminUserId, permissionKey: "chat.audit_access" })) {
-    return true;
-  }
-
-  const modalityKey = SUPERVISION_PERMISSION_BY_TYPE[conversationType];
-
-  if (!modalityKey) {
-    return false;
-  }
-
-  return hasPermission(runner, { userId: adminUserId, permissionKey: modalityKey });
+  return rows.length > 0;
 }
 
 function normalizeLimit(limit) {
@@ -70,9 +56,7 @@ async function getConversationTypeOrThrow(runner, conversationId) {
  * generic participant routes, which return 404 for both "doesn't
  * exist" and "you're not authorized" to avoid leaking existence, this
  * is an explicit admin-only supervision action: 403 (not 404) when
- * the conversation exists but the admin lacks the matching
- * permission, since "admin without permission" needs to be a
- * distinguishable, testable outcome here.
+ * the conversation exists but the caller is not an active admin.
  */
 async function logAccess(runner, { adminUserId, conversationId, accessReason, details }) {
   if (!ALLOWED_ACCESS_REASONS.includes(accessReason)) {
@@ -113,7 +97,7 @@ async function getConversationForSupervisor(db, { conversationId, adminUserId, a
 
   const conversation = rows[0];
 
-  const allowed = await canSuperviseConversation(runner, { adminUserId, conversationType: conversation.type });
+  const allowed = await canSuperviseConversation(runner, { adminUserId });
 
   if (!allowed) {
     throw createServiceError("Você não tem permissão para supervisionar este tipo de conversa.", 403);
@@ -168,9 +152,9 @@ async function listMessagesForSupervisor(db, { conversationId, adminUserId, curs
   const normalizedLimit = normalizeLimit(limit);
   const normalizedCursor = normalizeCursor(cursor);
 
-  const conversationType = await getConversationTypeOrThrow(runner, conversationId);
+  await getConversationTypeOrThrow(runner, conversationId);
 
-  const allowed = await canSuperviseConversation(runner, { adminUserId, conversationType });
+  const allowed = await canSuperviseConversation(runner, { adminUserId });
 
   if (!allowed) {
     throw createServiceError("Você não tem permissão para supervisionar este tipo de conversa.", 403);
@@ -224,6 +208,87 @@ async function listMessagesForSupervisor(db, { conversationId, adminUserId, curs
   };
 }
 
+async function listConversationsForSupervision(db, { type, search, cursor, limit }) {
+  const normalizedLimit = normalizeLimit(limit);
+  const normalizedCursor = normalizeCursor(cursor);
+  const trimmedSearch = typeof search === "string" ? search.trim() : "";
+
+  if (type && !SUPERVISION_TYPES.includes(type)) {
+    throw createServiceError(`Tipo inválido. Use um de: ${SUPERVISION_TYPES.join(", ")}.`, 400);
+  }
+
+  const conditions = ["cc.type IN (?, ?)"];
+  const params = [...SUPERVISION_TYPES];
+
+  if (type) {
+    conditions.push("cc.type = ?");
+    params.push(type);
+  }
+
+  if (trimmedSearch) {
+    conditions.push(
+      `(cc.title LIKE ? OR EXISTS (
+        SELECT 1
+        FROM chat_participants cp_search
+        INNER JOIN users u_search ON u_search.id = cp_search.user_id
+        WHERE cp_search.conversation_id = cc.id
+          AND u_search.name LIKE ?
+      ))`
+    );
+    const like = `%${trimmedSearch}%`;
+    params.push(like, like);
+  }
+
+  if (normalizedCursor) {
+    conditions.push("cc.id < ?");
+    params.push(normalizedCursor);
+  }
+
+  const [rows] = await db.promise().query(
+    `
+      SELECT
+        cc.id, cc.type, cc.channel_kind, cc.title, cc.category, cc.status,
+        cc.last_message_at, cc.created_at,
+        co.name AS course_name,
+        cl.name AS class_name,
+        (
+          SELECT GROUP_CONCAT(u.name ORDER BY u.name SEPARATOR ', ')
+          FROM chat_participants cp
+          INNER JOIN users u ON u.id = cp.user_id
+          WHERE cp.conversation_id = cc.id
+            AND cp.left_at IS NULL
+        ) AS participant_names
+      FROM chat_conversations cc
+      LEFT JOIN courses co ON co.id = cc.course_id
+      LEFT JOIN classes cl ON cl.id = cc.class_id
+      WHERE ${conditions.join(" AND ")}
+      ORDER BY cc.id DESC
+      LIMIT ?
+    `,
+    [...params, normalizedLimit + 1]
+  );
+
+  const hasMore = rows.length > normalizedLimit;
+  const pageRows = hasMore ? rows.slice(0, normalizedLimit) : rows;
+
+  return {
+    items: pageRows.map((row) => ({
+      conversationId: row.id,
+      type: row.type,
+      channelKind: row.channel_kind,
+      title: row.title,
+      category: row.category,
+      status: row.status,
+      courseName: row.course_name,
+      className: row.class_name,
+      participantNames: row.participant_names,
+      lastMessageAt: row.last_message_at,
+      createdAt: row.created_at,
+    })),
+    nextCursor: hasMore ? pageRows[pageRows.length - 1].id : null,
+  };
+}
+
 async function listAccessLogs(db, { conversationId, cursor, limit }) {
   const normalizedLimit = normalizeLimit(limit);
   const normalizedCursor = normalizeCursor(cursor);
@@ -266,8 +331,10 @@ async function listAccessLogs(db, { conversationId, cursor, limit }) {
 
 module.exports = {
   ALLOWED_ACCESS_REASONS,
+  SUPERVISION_TYPES,
   canSuperviseConversation,
   getConversationTypeOrThrow,
+  listConversationsForSupervision,
   getConversationForSupervisor,
   listMessagesForSupervisor,
   listAccessLogs,

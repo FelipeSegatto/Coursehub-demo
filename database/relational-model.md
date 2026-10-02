@@ -66,7 +66,7 @@ Cancelamento direto de contrato só em `pending_payment`. Ativo/atrasado usa des
 `academic_calendar_events` (eventos institucionais). Encontros, prazos de atividade e `live_class` entram por agregação das tabelas de origem.
 
 ### Chat
-`chat_conversations`, `chat_participants`, `chat_messages`, `chat_reports`, `chat_access_logs`. `admin_permissions` (chaves de supervisão; seed 20260918_001).
+`chat_conversations`, `chat_participants`, `chat_messages`, `chat_reports`, `chat_access_logs`. Supervisão de dúvida aluno-professor e de chat entre colegas é de qualquer admin ativo; o acesso extraordinário fica em `chat_access_logs`.
 
 ### Notificações
 `notifications`, `notification_recipients`, `notification_deliveries`, `notification_preferences`. Outbox + worker de e-mail. Envio de atividade notifica todos os `course_teachers` ativos do curso.
