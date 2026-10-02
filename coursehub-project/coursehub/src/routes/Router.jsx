@@ -74,6 +74,7 @@ import AdminStudentProgressPage from "../pages/admin/AdminStudentProgressPage";
 import AdminStudentProgressDetailPage from "../pages/admin/AdminStudentProgressDetailPage";
 import NotificationsAdmin from "../pages/admin/NotificationsAdmin";
 import ChatAdmin from "../pages/admin/ChatAdmin";
+import ChatSupervisionAdmin from "../pages/admin/ChatSupervisionAdmin";
 import ModerationAdmin from "../pages/admin/ModerationAdmin";
 import SystemHealthAdmin from "../pages/admin/SystemHealthAdmin";
 
@@ -511,6 +512,10 @@ export const router = createBrowserRouter([
               {
                 path: "chat",
                 element: <ChatAdmin />,
+              },
+              {
+                path: "chat/supervisao",
+                element: <ChatSupervisionAdmin />,
               },
               {
                 path: "moderacao",
