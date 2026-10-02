@@ -520,3 +520,35 @@ export async function reviewReport(
     }
   );
 }
+
+
+export async function listSupervisionConversations(params = {}) {
+  const queryString = buildQueryString(params);
+
+  return apiFetch(
+    queryString ? `/api/admin/chat/supervision?${queryString}` : "/api/admin/chat/supervision"
+  );
+}
+
+
+export async function superviseConversation(conversationId, { accessReason, details }) {
+  const queryString = buildQueryString({ accessReason, details });
+
+  return apiFetch(`/api/admin/chat/conversations/${conversationId}/supervise?${queryString}`);
+}
+
+
+export async function listSupervisedMessages(conversationId, params = {}) {
+  const queryString = buildQueryString(params);
+
+  return apiFetch(
+    queryString
+      ? `/api/admin/chat/conversations/${conversationId}/supervise/messages?${queryString}`
+      : `/api/admin/chat/conversations/${conversationId}/supervise/messages`
+  );
+}
+
+
+export async function listConversationAccessLogs(conversationId) {
+  return apiFetch(`/api/admin/chat/conversations/${conversationId}/access-logs`);
+}

@@ -17,6 +17,7 @@ const {
 const { listReports, reviewReport } = require("../services/chat/chatModerationService");
 
 const {
+  listConversationsForSupervision,
   getConversationForSupervisor,
   listMessagesForSupervisor,
   listAccessLogs,
@@ -208,13 +209,31 @@ router.patch("/admin/chat/reports/:reportId", authenticateToken, authorizeRoles(
 });
 
 /**
+ * GET /api/admin/chat/supervision
+ * Conversations an admin does not already work as a ticket queue:
+ * student-teacher questions and classmate chats, including class groups.
+ */
+router.get("/admin/chat/supervision", authenticateToken, authorizeRoles("admin"), async (req, res) => {
+  try {
+    const result = await listConversationsForSupervision(db, {
+      type: req.query.type,
+      search: req.query.search,
+      cursor: req.query.cursor,
+      limit: req.query.limit,
+    });
+
+    return res.status(200).json(result);
+  } catch (error) {
+    return handleServiceError(res, error, "Erro ao buscar conversas para supervisão.");
+  }
+});
+
+/**
  * GET /api/admin/chat/conversations/:conversationId/supervise
  * Extraordinary read access to a conversation the admin isn't a
  * participant of -- 403 (not 404) when the conversation exists but
- * the caller lacks the matching chat.supervise_* / chat.audit_access
- * permission, since that distinction is exactly what this stage needs
- * to be testable. Every successful call is logged to chat_access_logs
- * inside the service itself.
+ * the caller is not an active admin. Every successful call is logged
+ * to chat_access_logs inside the service itself.
  */
 router.get(
   "/admin/chat/conversations/:conversationId/supervise",

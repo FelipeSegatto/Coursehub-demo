@@ -13,24 +13,17 @@ const { reportMessage, listReports, reviewReport, deleteMessage } = require("../
 const {
   canSuperviseConversation,
   getConversationForSupervisor,
+  listConversationsForSupervision,
   listMessagesForSupervisor,
   listAccessLogs,
 } = require("../../services/chat/chatAccessService");
-const { grantPermission, revokePermission } = require("../../services/admin/adminPermissionService");
 
 // Real, pre-existing data (read-only -- no course/enrollment row is
-// created or mutated, only chat_*/admin_permissions rows, fully
-// cleaned up in after()). Students 1/2 (Lucas Almeida, Marina Costa)
-// share course 6, kept disjoint from every other chat test file's own
-// student pair (65/72, 83, 69/31) per this project's convention --
-// academic_peer has no dedicated supervise_* key, only
-// chat.audit_access reaches it, which is exactly the case this file
-// needs. Teacher 19/course 9/student 69 is the same
-// chatTeacherSupport.test.js fixture (reused read-only) --
-// teacher_support DOES have a dedicated supervise key. Admin 42
-// (Felipe Segatto) is granted/revoked chat.supervise_teacher_support
-// and chat.audit_access within these tests, never left active
-// afterward.
+// created or mutated, only chat_* rows, fully cleaned up in after()).
+// Students 1/2 share a course. Teacher 19/course 9/student 69 is the
+// chatTeacherSupport fixture. Admin 42 is an active admin and can
+// supervise without a separate permission grant. Teacher and student
+// cannot.
 const STUDENT_A_USER_ID = 1;
 const STUDENT_B_USER_ID = 2;
 const TEACHER_USER_ID = 19;
@@ -40,7 +33,6 @@ const ENROLLED_STUDENT_USER_ID = 69;
 const ADMIN_USER_ID = 42;
 
 const createdConversationIds = [];
-const grantedPermissionKeys = new Set();
 
 async function openTestAcademicConversation() {
   const result = await openAcademicPeerConversation(db, { userId: STUDENT_A_USER_ID, peerUserId: STUDENT_B_USER_ID });
@@ -65,22 +57,7 @@ async function openTestTeacherSupportConversation() {
   return result.conversationId;
 }
 
-async function grantTestPermission(permissionKey) {
-  await grantPermission(db, { userId: ADMIN_USER_ID, permissionKey, grantedByUserId: ADMIN_USER_ID });
-  grantedPermissionKeys.add(permissionKey);
-}
-
 after(async () => {
-  for (const permissionKey of grantedPermissionKeys) {
-    await revokePermission(db, { userId: ADMIN_USER_ID, permissionKey });
-  }
-
-  await db
-    .promise()
-    .query(`DELETE FROM admin_permissions WHERE user_id = ? AND permission_key IN ('chat.supervise_teacher_support', 'chat.audit_access')`, [
-      ADMIN_USER_ID,
-    ]);
-
   if (createdConversationIds.length > 0) {
     const placeholders = createdConversationIds.map(() => "?").join(",");
 
@@ -271,49 +248,37 @@ test("deleteMessage rejects a non-sender who isn't a supervising admin", async (
   );
 });
 
-test("deleteMessage rejects an admin without the matching supervision permission", async () => {
+test("deleteMessage rejects a teacher who is not the sender", async () => {
   const conversationId = await openTestTeacherSupportConversation();
   const message = await createMessage(db, { conversationId, userId: ENROLLED_STUDENT_USER_ID, body: "mensagem do aluno" });
 
   await assert.rejects(
-    () => deleteMessage(db, { messageId: message.messageId, userId: ADMIN_USER_ID }),
+    () => deleteMessage(db, { messageId: message.messageId, userId: TEACHER_USER_ID }),
     (error) => error.statusCode === 403
   );
 });
 
-test("deleteMessage allows an admin with the matching supervision permission", async () => {
-  await grantTestPermission("chat.supervise_teacher_support");
-
+test("deleteMessage allows an active admin who is not the sender", async () => {
   const conversationId = await openTestTeacherSupportConversation();
   const message = await createMessage(db, { conversationId, userId: ENROLLED_STUDENT_USER_ID, body: "mensagem removível" });
 
   const result = await deleteMessage(db, { messageId: message.messageId, userId: ADMIN_USER_ID });
 
   assert.equal(result.deleted, true);
-
-  await revokePermission(db, { userId: ADMIN_USER_ID, permissionKey: "chat.supervise_teacher_support" });
 });
 
-test("canSuperviseConversation: no permission denies every modality", async () => {
-  const allowed = await canSuperviseConversation(db.promise(), {
-    adminUserId: ADMIN_USER_ID,
-    conversationType: "teacher_support",
-  });
+test("canSuperviseConversation allows an active admin and denies teacher and student", async () => {
+  const adminAllowed = await canSuperviseConversation(db.promise(), { adminUserId: ADMIN_USER_ID });
+  const teacherAllowed = await canSuperviseConversation(db.promise(), { adminUserId: TEACHER_USER_ID });
+  const studentAllowed = await canSuperviseConversation(db.promise(), { adminUserId: STUDENT_A_USER_ID });
 
-  assert.equal(allowed, false);
+  assert.equal(adminAllowed, true);
+  assert.equal(teacherAllowed, false);
+  assert.equal(studentAllowed, false);
 });
 
-test("chat.audit_access grants supervision of a modality with no dedicated supervise key (academic_peer)", async () => {
-  await grantTestPermission("chat.audit_access");
-
+test("an active admin can supervise academic_peer without an extra permission", async () => {
   const conversationId = await openTestAcademicConversation();
-
-  const allowed = await canSuperviseConversation(db.promise(), {
-    adminUserId: ADMIN_USER_ID,
-    conversationType: "academic_peer",
-  });
-
-  assert.equal(allowed, true);
 
   const detail = await getConversationForSupervisor(db, {
     conversationId,
@@ -326,17 +291,22 @@ test("chat.audit_access grants supervision of a modality with no dedicated super
   assert.equal(detail.type, "academic_peer");
   assert.equal(detail.participants.length, 2);
 
-  await revokePermission(db, { userId: ADMIN_USER_ID, permissionKey: "chat.audit_access" });
+  const listed = await listConversationsForSupervision(db, { type: "academic_peer", limit: 50 });
+
+  assert.equal(
+    listed.items.some((item) => item.conversationId === conversationId),
+    true
+  );
 });
 
-test("getConversationForSupervisor returns 403 (not 404) when the conversation exists but permission is missing", async () => {
+test("getConversationForSupervisor returns 403 when the caller is not an admin", async () => {
   const conversationId = await openTestTeacherSupportConversation();
 
   await assert.rejects(
     () =>
       getConversationForSupervisor(db, {
         conversationId,
-        adminUserId: ADMIN_USER_ID,
+        adminUserId: TEACHER_USER_ID,
         accessReason: "support",
       }),
     (error) => error.statusCode === 403
@@ -344,8 +314,6 @@ test("getConversationForSupervisor returns 403 (not 404) when the conversation e
 });
 
 test("getConversationForSupervisor returns 404 for a conversation that doesn't exist", async () => {
-  await grantTestPermission("chat.audit_access");
-
   await assert.rejects(
     () =>
       getConversationForSupervisor(db, {
@@ -355,13 +323,9 @@ test("getConversationForSupervisor returns 404 for a conversation that doesn't e
       }),
     (error) => error.statusCode === 404
   );
-
-  await revokePermission(db, { userId: ADMIN_USER_ID, permissionKey: "chat.audit_access" });
 });
 
 test("a successful supervised read is logged to chat_access_logs, and listMessagesForSupervisor shows the original body of a soft-deleted message", async () => {
-  await grantTestPermission("chat.supervise_teacher_support");
-
   const conversationId = await openTestTeacherSupportConversation();
   const message = await createMessage(db, { conversationId, userId: ENROLLED_STUDENT_USER_ID, body: "conteúdo original" });
 
@@ -390,6 +354,4 @@ test("a successful supervised read is logged to chat_access_logs, and listMessag
 
   assert.equal(found.isDeleted, true);
   assert.equal(found.body, "conteúdo original");
-
-  await revokePermission(db, { userId: ADMIN_USER_ID, permissionKey: "chat.supervise_teacher_support" });
 });

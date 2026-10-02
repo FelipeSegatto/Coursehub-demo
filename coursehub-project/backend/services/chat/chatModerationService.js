@@ -1,5 +1,5 @@
 const { createServiceError, assertParticipant } = require("./chatParticipantService");
-const { canSuperviseConversation, getConversationTypeOrThrow } = require("./chatAccessService");
+const { canSuperviseConversation } = require("./chatAccessService");
 
 const ALLOWED_REASONS = ["spam", "abuse", "harassment", "inappropriate_content", "other"];
 const ALLOWED_REVIEW_STATUSES = ["resolved", "dismissed"];
@@ -191,11 +191,7 @@ async function reviewReport(db, { reportId, adminUserId, status, resolutionNote 
  * while authorized supervision (chatAccessService.listMessagesForSupervisor)
  * still sees the original. Two ways in: the sender removing their own
  * message needs no permission beyond authorship; anyone else needs
- * the same supervision permission that gates reading the conversation
- * in the first place -- deleting someone else's content in a modality
- * you can't even supervise would be a bigger privilege escalation than
- * reading it. Idempotent: deleting an already-deleted message is a
- * silent no-op.
+ * the same admin role that gates reading the conversation.
  */
 async function deleteMessage(db, { messageId, userId }) {
   const runner = db.promise();
@@ -216,8 +212,7 @@ async function deleteMessage(db, { messageId, userId }) {
   }
 
   if (message.sender_user_id !== userId) {
-    const conversationType = await getConversationTypeOrThrow(runner, message.conversation_id);
-    const allowed = await canSuperviseConversation(runner, { adminUserId: userId, conversationType });
+    const allowed = await canSuperviseConversation(runner, { adminUserId: userId });
 
     if (!allowed) {
       throw createServiceError("Você não pode remover esta mensagem.", 403);
