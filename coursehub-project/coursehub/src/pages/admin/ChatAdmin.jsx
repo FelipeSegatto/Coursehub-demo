@@ -9,6 +9,7 @@ import {
   resolveConversation,
 } from "../../services/ChatService";
 import { useChatThread } from "../../hooks/useChatThread";
+import AdminChatModeNav from "../../components/chat/AdminChatModeNav";
 import InstitutionalChatNotice from "../../components/chat/InstitutionalChatNotice";
 import ChatThreadPanel from "../../components/chat/ChatThreadPanel";
 import NewStaffConversationModal from "../../components/chat/NewStaffConversationModal";
@@ -281,6 +282,7 @@ export default function ChatAdmin() {
   return (
     <main className="p-6">
       <section className="mb-6">
+        <AdminChatModeNav />
         <h1 className="text-3xl font-bold text-gray-900">Atendimento institucional</h1>
         <p className="mt-2 text-gray-600">
           Protocolos abertos por alunos e conversas com professores atendidos pela administração.

@@ -225,7 +225,6 @@ export default function NavbarAdmin() {
 
           <NavLink
             to="/admin/chat"
-            end
             className={({ isActive }) => `relative ${linkClass({ isActive })}`}
           >
             Chat
@@ -239,10 +238,6 @@ export default function NavbarAdmin() {
                 {unreadChatCount > 99 ? "99+" : unreadChatCount}
               </span>
             )}
-          </NavLink>
-
-          <NavLink to="/admin/chat/supervisao" className={linkClass}>
-            Supervisão
           </NavLink>
         </nav>
 
@@ -373,17 +368,13 @@ export default function NavbarAdmin() {
             )}
           </NavLink>
 
-          <NavLink to="/admin/chat" end className={mobileLinkClass} onClick={closeMenu}>
+          <NavLink to="/admin/chat" className={mobileLinkClass} onClick={closeMenu}>
             Chat
             {unreadChatCount > 0 && (
               <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-xs font-semibold text-white">
                 {unreadChatCount > 99 ? "99+" : unreadChatCount}
               </span>
             )}
-          </NavLink>
-
-          <NavLink to="/admin/chat/supervisao" className={mobileLinkClass} onClick={closeMenu}>
-            Supervisão
           </NavLink>
 
           <NavLink to="/admin/perfil" className={mobileLinkClass} onClick={closeMenu}>

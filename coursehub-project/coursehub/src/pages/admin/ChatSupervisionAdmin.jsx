@@ -5,6 +5,7 @@ import {
   listSupervisionConversations,
   superviseConversation,
 } from "../../services/ChatService";
+import AdminChatModeNav from "../../components/chat/AdminChatModeNav";
 import InstitutionalChatNotice from "../../components/chat/InstitutionalChatNotice";
 
 const TYPE_TABS = [
@@ -106,8 +107,8 @@ export default function ChatSupervisionAdmin() {
     <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Chat</p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">Supervisão</h1>
+          <AdminChatModeNav />
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-950">Supervisão</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
             Dúvidas de aluno com professor e conversas entre colegas. Abrir uma conversa registra o acesso.
           </p>
